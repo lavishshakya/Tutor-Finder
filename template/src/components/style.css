@@ -1,0 +1,115 @@
+.navbar {
+    background-color: #333;
+    height: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    width: 100%; 
+    left: 0;     
+    right: 0;   
+}
+
+.navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+    padding: 0 20px;
+    margin: 0 auto;  /* Center the container */
+}
+
+.navbar-logo {
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.menu-icon {
+    display: none;
+    color: #fff;
+    font-size: 1.8rem;
+    cursor: pointer;
+}
+
+.nav-menu {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-item {
+    height: 80px;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+}
+
+.nav-link {
+    color: #fff;
+    text-decoration: none;
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    background-color: #555;
+    border-radius: 4px;
+}
+
+.nav-link-btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.nav-link-btn:hover {
+    background-color: #45a049;
+}
+
+.login-item {
+    margin-left: auto;  /* Push login button to the right */
+}
+
+/* Responsive Design */
+@media screen and (max-width: 960px) {
+    .menu-icon {
+        display: block;
+    }
+
+    .nav-menu {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        position: absolute;
+        top: 80px;
+        left: -100%;
+        opacity: 1;
+        transition: all 0.5s ease;
+        background-color: #333;
+    }
+
+    .nav-menu.active {
+        left: 0;
+        opacity: 1;
+        transition: all 0.5s ease;
+    }
+
+    .nav-item {
+        width: 100%;
+        height: auto;
+        padding: 1rem 0;
+    }
+}
