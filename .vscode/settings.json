@@ -1,0 +1,7 @@
+{
+  "terminal.integrated.defaultLocation": "view",
+"terminal.integrated.startInNewWindow": false,
+"terminal.external.windowsExec": "",
+"terminal.explorerKind": "integrated"
+
+}
