@@ -1,6 +1,4 @@
 @import "tailwindcss";
-<<<<<<< HEAD
-=======
 
 /* Mobile-first optimizations */
 * {
@@ -125,4 +123,4 @@ html {
     overflow-x: hidden;
   }
 }
->>>>>>> 181f83f (Updated Features)
+

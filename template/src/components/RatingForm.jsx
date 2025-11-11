@@ -1,60 +1,20 @@
-<<<<<<< HEAD
-import React, { useState } from 'react';
-import axios from 'axios';
-import { FaStar } from 'react-icons/fa';
-=======
 import React, { useState } from "react";
 import axios from "axios";
 import { FaStar } from "react-icons/fa";
 import { getApiUrl } from "../services/api";
->>>>>>> 181f83f (Updated Features)
+
 
 const RatingForm = ({ tutorId, onSuccess }) => {
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
-<<<<<<< HEAD
-  const [review, setReview] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-=======
   const [review, setReview] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
->>>>>>> 181f83f (Updated Features)
+
   const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-<<<<<<< HEAD
-    
-    if (rating === 0) {
-      setError('Please select a rating');
-      return;
-    }
-    
-    try {
-      setLoading(true);
-      setError('');
-      
-      const token = localStorage.getItem('token');
-      const response = await axios.post(
-        `http://localhost:5001/api/tutors/${tutorId}/reviews`, 
-        { rating, review },
-        { headers: { Authorization: `Bearer ${token}` }}
-      );
-      
-      if (response.data.success) {
-        setSuccess(true);
-        setReview('');
-        setRating(0);
-        if (onSuccess) onSuccess();
-      } else {
-        setError(response.data.message || 'Failed to submit review');
-      }
-    } catch (err) {
-      console.error('Error submitting review:', err);
-      setError(err.response?.data?.message || 'An error occurred. Please try again.');
-=======
 
     if (rating === 0) {
       setError("Please select a rating");
@@ -85,7 +45,7 @@ const RatingForm = ({ tutorId, onSuccess }) => {
       setError(
         err.response?.data?.message || "An error occurred. Please try again."
       );
->>>>>>> 181f83f (Updated Features)
+
     } finally {
       setLoading(false);
     }
@@ -94,11 +54,8 @@ const RatingForm = ({ tutorId, onSuccess }) => {
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
       <h3 className="text-lg font-semibold mb-4">Rate & Review Tutor</h3>
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> 181f83f (Updated Features)
+
       {success ? (
         <div className="bg-green-100 text-green-700 p-4 rounded mb-4">
           Your review has been submitted successfully!
@@ -110,11 +67,8 @@ const RatingForm = ({ tutorId, onSuccess }) => {
               {error}
             </div>
           )}
-<<<<<<< HEAD
-          
-=======
 
->>>>>>> 181f83f (Updated Features)
+
           <div className="mb-4">
             <div className="flex items-center">
               <span className="mr-2 text-sm font-medium">Rating: </span>
@@ -125,15 +79,12 @@ const RatingForm = ({ tutorId, onSuccess }) => {
                     <div key={index} className="mr-1">
                       <FaStar
                         className="cursor-pointer"
-<<<<<<< HEAD
-                        color={ratingValue <= (hover || rating) ? "#ffc107" : "#e4e5e9"}
-=======
                         color={
                           ratingValue <= (hover || rating)
                             ? "#ffc107"
                             : "#e4e5e9"
                         }
->>>>>>> 181f83f (Updated Features)
+
                         size={28}
                         onClick={() => setRating(ratingValue)}
                         onMouseEnter={() => setHover(ratingValue)}
@@ -145,18 +96,13 @@ const RatingForm = ({ tutorId, onSuccess }) => {
               </div>
             </div>
           </div>
-<<<<<<< HEAD
-          
-          <div className="mb-4">
-            <label htmlFor="review" className="block text-sm font-medium text-gray-700 mb-1">
-=======
 
           <div className="mb-4">
             <label
               htmlFor="review"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
->>>>>>> 181f83f (Updated Features)
+
               Your Review (Optional)
             </label>
             <textarea
@@ -168,26 +114,17 @@ const RatingForm = ({ tutorId, onSuccess }) => {
               placeholder="Share your experience with this tutor..."
             ></textarea>
           </div>
-<<<<<<< HEAD
-          
-=======
 
->>>>>>> 181f83f (Updated Features)
+
           <button
             type="submit"
             disabled={loading}
             className={`w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md ${
-<<<<<<< HEAD
-              loading ? 'opacity-70 cursor-not-allowed' : ''
-            }`}
-          >
-            {loading ? 'Submitting...' : 'Submit Review'}
-=======
               loading ? "opacity-70 cursor-not-allowed" : ""
             }`}
           >
             {loading ? "Submitting..." : "Submit Review"}
->>>>>>> 181f83f (Updated Features)
+
           </button>
         </form>
       )}
@@ -195,8 +132,5 @@ const RatingForm = ({ tutorId, onSuccess }) => {
   );
 };
 
-<<<<<<< HEAD
 export default RatingForm;
-=======
-export default RatingForm;
->>>>>>> 181f83f (Updated Features)
+

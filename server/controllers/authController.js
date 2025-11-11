@@ -1,12 +1,7 @@
-<<<<<<< HEAD
-import User from '../models/User.js';
-import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
-=======
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
->>>>>>> 181f83f (Updated Features)
+
 
 dotenv.config();
 
@@ -15,13 +10,6 @@ dotenv.config();
 // @access  Public
 export const register = async (req, res) => {
   try {
-<<<<<<< HEAD
-    console.log('Register request body:', req.body); // Add this line
-    const { name, email, password, role, phoneNumber, whatsappNumber } = req.body;
-    console.log('Register request received:', { name, email, role });
-
-    // Check if user already exists
-=======
     console.log("Register request body:", req.body); // Add this line
     const { name, email, phoneNumber, password, role, whatsappNumber } =
       req.body;
@@ -33,14 +21,11 @@ export const register = async (req, res) => {
     });
 
     // Check if user already exists with email
->>>>>>> 181f83f (Updated Features)
+
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({
         success: false,
-<<<<<<< HEAD
-        message: 'Email already registered'
-=======
         message: "Email already registered",
       });
     }
@@ -51,7 +36,7 @@ export const register = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Phone number already registered",
->>>>>>> 181f83f (Updated Features)
+
       });
     }
 
@@ -59,17 +44,11 @@ export const register = async (req, res) => {
     const user = await User.create({
       name,
       email,
-<<<<<<< HEAD
-      password,
-      role,
-      phoneNumber: phoneNumber || '',
-      whatsappNumber: whatsappNumber || ''
-=======
       phoneNumber,
       password,
       role,
       whatsappNumber: whatsappNumber || phoneNumber,
->>>>>>> 181f83f (Updated Features)
+
     });
 
     // Generate token
@@ -82,16 +61,6 @@ export const register = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-<<<<<<< HEAD
-        role: user.role
-      }
-    });
-  } catch (err) {
-    console.error('Registration error details:', err); // Enhance this line
-    res.status(500).json({
-      success: false,
-      message: err.message || 'Server error during registration'
-=======
         phoneNumber: user.phoneNumber,
         role: user.role,
       },
@@ -101,7 +70,7 @@ export const register = async (req, res) => {
     res.status(500).json({
       success: false,
       message: err.message || "Server error during registration",
->>>>>>> 181f83f (Updated Features)
+
     });
   }
 };
@@ -111,26 +80,6 @@ export const register = async (req, res) => {
 // @access  Public
 export const login = async (req, res) => {
   try {
-<<<<<<< HEAD
-    const { email, password } = req.body;
-    console.log('Login request received:', { email });
-
-    // Validate email & password
-    if (!email || !password) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please provide an email and password'
-      });
-    }
-
-    // Check for user
-    const user = await User.findOne({ email }).select('+password');
-    if (!user) {
-      console.log('User not found with email:', email);
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid credentials'
-=======
     const { emailOrPhone, password } = req.body;
     console.log("Login request received:", { emailOrPhone });
 
@@ -166,24 +115,18 @@ export const login = async (req, res) => {
       return res.status(401).json({
         success: false,
         message: "Invalid credentials",
->>>>>>> 181f83f (Updated Features)
+
       });
     }
 
     // Check if password matches
     const isMatch = await user.matchPassword(password);
     if (!isMatch) {
-<<<<<<< HEAD
-      console.log('Password does not match for user:', email);
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid credentials'
-=======
       console.log("Password does not match for user:", emailOrPhone);
       return res.status(401).json({
         success: false,
         message: "Invalid credentials",
->>>>>>> 181f83f (Updated Features)
+
       });
     }
 
@@ -197,16 +140,6 @@ export const login = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-<<<<<<< HEAD
-        role: user.role
-      }
-    });
-  } catch (err) {
-    console.error('Login error:', err);
-    res.status(500).json({
-      success: false,
-      message: 'Server error'
-=======
         phoneNumber: user.phoneNumber,
         role: user.role,
       },
@@ -216,7 +149,7 @@ export const login = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Server error",
->>>>>>> 181f83f (Updated Features)
+
     });
   }
 };
@@ -230,18 +163,6 @@ export const getMe = async (req, res) => {
 
     res.status(200).json({
       success: true,
-<<<<<<< HEAD
-      data: user
-    });
-  } catch (err) {
-    console.error('Get current user error:', err);
-    res.status(500).json({
-      success: false,
-      message: 'Server error'
-    });
-  }
-};
-=======
       data: user,
     });
   } catch (err) {
@@ -382,4 +303,4 @@ export const completeOAuthRegistration = async (req, res) => {
     });
   }
 };
->>>>>>> 181f83f (Updated Features)
+

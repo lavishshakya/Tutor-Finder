@@ -1,13 +1,3 @@
-<<<<<<< HEAD
-import React, { useState, useEffect, useRef } from 'react';
-import { FaPaperPlane, FaTimes, FaTrash } from 'react-icons/fa';
-import axios from 'axios';
-import { useAuth } from '../context/AuthContext';
-
-const ChatInterface = ({ activeTutor, onClose, initialConversationId = null }) => {
-  const { currentUser } = useAuth();
-  const [message, setMessage] = useState('');
-=======
 import React, { useState, useEffect, useRef } from "react";
 import { FaPaperPlane, FaTimes, FaTrash } from "react-icons/fa";
 import axios from "axios";
@@ -21,7 +11,7 @@ const ChatInterface = ({
 }) => {
   const { currentUser } = useAuth();
   const [message, setMessage] = useState("");
->>>>>>> 181f83f (Updated Features)
+
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
@@ -29,15 +19,6 @@ const ChatInterface = ({
   const [error, setError] = useState(null);
   const [clearingChat, setClearingChat] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
-<<<<<<< HEAD
-  
-  const messagesEndRef = useRef(null);
-  const chatContainerRef = useRef(null);
-
-  // Scroll to bottom whenever messages change
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-=======
   const [isPolling, setIsPolling] = useState(false);
 
   const messagesEndRef = useRef(null);
@@ -57,7 +38,7 @@ const ChatInterface = ({
   // Scroll to bottom whenever messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
->>>>>>> 181f83f (Updated Features)
+
   }, [messages]);
 
   // Load messages when component mounts or when activeTutor changes
@@ -71,43 +52,16 @@ const ChatInterface = ({
       try {
         setLoading(true);
         setError(null);
-<<<<<<< HEAD
-        
-        const token = localStorage.getItem('token');
-        if (!token) {
-          throw new Error('Authentication token not found');
-=======
 
         const token = localStorage.getItem("token");
         if (!token) {
           throw new Error("Authentication token not found");
->>>>>>> 181f83f (Updated Features)
+
         }
 
         // If we don't have a conversation ID yet, we need to determine it
         // In our backend, conversation IDs are created by sorting and joining user IDs
         const participants = [currentUser.id, activeTutor._id].sort();
-<<<<<<< HEAD
-        const potentialConversationId = participants.join('_');
-        
-        console.log("Attempting to fetch messages with conversation ID:", potentialConversationId);
-        
-        // Try to fetch existing conversation
-        const response = await axios.get(
-          `http://localhost:5001/api/messages/conversations/${potentialConversationId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          }
-        );
-        
-        console.log('Messages response:', response.data);
-        
-        if (response.data.success) {
-          // Format messages for our UI
-          const loadedMessages = response.data.data.map(msg => ({
-=======
         const potentialConversationId = participants.join("_");
 
         // Try to fetch existing conversation
@@ -123,23 +77,11 @@ const ChatInterface = ({
         if (response.data.success) {
           // Format messages for our UI
           const loadedMessages = response.data.data.map((msg) => ({
->>>>>>> 181f83f (Updated Features)
+
             id: msg._id,
             senderId: msg.sender,
             text: msg.text,
             timestamp: new Date(msg.createdAt),
-<<<<<<< HEAD
-            read: msg.read
-          }));
-          
-          setMessages(loadedMessages);
-          setConversationId(potentialConversationId);
-        }
-      } catch (error) {
-        console.error('Error fetching messages:', error);
-        setError('Failed to load messages. Please try again.');
-        
-=======
             read: msg.read,
           }));
 
@@ -155,16 +97,13 @@ const ChatInterface = ({
       } catch (error) {
         setError("Failed to load messages. Please try again.");
 
->>>>>>> 181f83f (Updated Features)
+
         // Even if there's an error fetching messages, we still want to set the conversation ID
         // so that we can send messages to start a new conversation
         if (!conversationId && currentUser && activeTutor) {
           const participants = [currentUser.id, activeTutor._id].sort();
-<<<<<<< HEAD
-          setConversationId(participants.join('_'));
-=======
           setConversationId(participants.join("_"));
->>>>>>> 181f83f (Updated Features)
+
         }
       } finally {
         setLoading(false);
@@ -174,21 +113,6 @@ const ChatInterface = ({
     fetchMessages();
   }, [currentUser, activeTutor, initialConversationId]);
 
-<<<<<<< HEAD
-  // Handle sending a message
-  const sendMessage = async (e) => {
-    e.preventDefault();
-    
-    if (!message.trim() || !currentUser || !activeTutor) return;
-    
-    try {
-      setSending(true);
-      setError(null);
-      
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('Authentication token not found');
-=======
   // Real-time polling for new messages
   useEffect(() => {
     if (!currentUser || !activeTutor || !conversationId || loading) {
@@ -286,7 +210,7 @@ const ChatInterface = ({
       const token = localStorage.getItem("token");
       if (!token) {
         throw new Error("Authentication token not found");
->>>>>>> 181f83f (Updated Features)
+
       }
 
       // Create a temporary message for optimistic UI update
@@ -295,41 +219,6 @@ const ChatInterface = ({
         senderId: currentUser.id,
         text: message.trim(),
         timestamp: new Date(),
-<<<<<<< HEAD
-        pending: true
-      };
-      
-      // Add to UI immediately for better UX
-      setMessages(prev => [...prev, tempMessage]);
-      
-      // Clear the input
-      setMessage('');
-      
-      // Determine recipient ID based on user role
-      const recipientId = activeTutor._id;
-      
-      // Send to server
-      const response = await axios.post(
-        'http://localhost:5001/api/messages',
-        { 
-          recipientId, 
-          text: tempMessage.text 
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
-      
-      console.log('Message sent response:', response.data);
-      
-      if (response.data.success) {
-        // Replace the temp message with the confirmed one from server
-        setMessages(prev => 
-          prev.map(msg => 
-            msg.id === tempMessage.id 
-=======
         pending: true,
       };
 
@@ -361,45 +250,24 @@ const ChatInterface = ({
         setMessages((prev) =>
           prev.map((msg) =>
             msg.id === tempMessage.id
->>>>>>> 181f83f (Updated Features)
+
               ? {
                   id: response.data.data._id,
                   senderId: response.data.data.sender,
                   text: response.data.data.text,
                   timestamp: new Date(response.data.data.createdAt),
-<<<<<<< HEAD
-                  read: false
-                } 
-              : msg
-          )
-        );
-        
-=======
                   read: false,
                 }
               : msg
           )
         );
 
->>>>>>> 181f83f (Updated Features)
+
         // If this is the first message, set the conversation ID
         if (!conversationId) {
           setConversationId(response.data.data.conversationId);
         }
       } else {
-<<<<<<< HEAD
-        throw new Error('Failed to send message');
-      }
-    } catch (error) {
-      console.error('Error sending message:', error);
-      setError('Failed to send message. Please try again.');
-      
-      // Mark the temporary message as failed
-      setMessages(prev => 
-        prev.map(msg => 
-          msg.id.startsWith('temp-') 
-            ? {...msg, failed: true, pending: false} 
-=======
         throw new Error("Failed to send message");
       }
     } catch (error) {
@@ -410,7 +278,7 @@ const ChatInterface = ({
         prev.map((msg) =>
           msg.id.startsWith("temp-")
             ? { ...msg, failed: true, pending: false }
->>>>>>> 181f83f (Updated Features)
+
             : msg
         )
       );
@@ -422,31 +290,6 @@ const ChatInterface = ({
   // Handle clearing the chat conversation
   const handleClearChat = async () => {
     if (!conversationId || !currentUser) return;
-<<<<<<< HEAD
-    
-    try {
-      setClearingChat(true);
-      setError(null);
-      
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('Authentication token not found');
-      }
-      
-      console.log(`Attempting to clear conversation: ${conversationId}`);
-      
-      const response = await axios.delete(
-        `http://localhost:5001/api/messages/conversations/${conversationId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
-      
-      console.log('Clear chat response:', response.data);
-      
-=======
 
     try {
       setClearingChat(true);
@@ -468,30 +311,11 @@ const ChatInterface = ({
         }
       );
 
->>>>>>> 181f83f (Updated Features)
+
       if (response.data.success) {
         // Clear messages in the UI
         setMessages([]);
         // Add a system message to indicate chat was cleared
-<<<<<<< HEAD
-        setMessages([{
-          id: 'system-cleared',
-          senderId: 'system',
-          text: 'Chat history has been cleared.',
-          timestamp: new Date(),
-          read: true,
-          isSystemMessage: true
-        }]);
-        
-        // Hide the confirmation dialog
-        setShowClearConfirm(false);
-      } else {
-        throw new Error('Failed to clear chat history');
-      }
-    } catch (error) {
-      console.error('Error clearing chat:', error);
-      setError('Failed to clear chat history. Please try again.');
-=======
         setMessages([
           {
             id: "system-cleared",
@@ -510,7 +334,7 @@ const ChatInterface = ({
       }
     } catch (error) {
       setError("Failed to clear chat history. Please try again.");
->>>>>>> 181f83f (Updated Features)
+
     } finally {
       setClearingChat(false);
     }
@@ -518,22 +342,6 @@ const ChatInterface = ({
 
   // Format date/time for messages
   const formatMessageTime = (timestamp) => {
-<<<<<<< HEAD
-    if (!timestamp) return '';
-    
-    const date = new Date(timestamp);
-    const now = new Date();
-    
-    const isToday = date.toDateString() === now.toDateString();
-    const isYesterday = new Date(now - 86400000).toDateString() === date.toDateString();
-    
-    if (isToday) {
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    } else if (isYesterday) {
-      return `Yesterday, ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-    } else {
-      return date.toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-=======
     if (!timestamp) return "";
 
     const date = new Date(timestamp);
@@ -560,24 +368,11 @@ const ChatInterface = ({
         hour: "2-digit",
         minute: "2-digit",
       });
->>>>>>> 181f83f (Updated Features)
+
     }
   };
 
   return (
-<<<<<<< HEAD
-    <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col h-full">
-      {/* Header */}
-      <div className="bg-indigo-600 text-white p-3 flex justify-between items-center">
-        <div className="flex items-center">
-          {activeTutor && (
-            <>
-              <div className="w-10 h-10 rounded-full bg-indigo-400 flex items-center justify-center overflow-hidden mr-3">
-                {activeTutor.profilePicture ? (
-                  <img 
-                    src={activeTutor.profilePicture} 
-                    alt={activeTutor.name} 
-=======
     <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-2xl overflow-hidden flex flex-col h-full border border-gray-200">
       {/* Header */}
       <div className="bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-600 text-white p-4 flex justify-between items-center shadow-lg">
@@ -589,29 +384,19 @@ const ChatInterface = ({
                   <img
                     src={activeTutor.profilePicture}
                     alt={activeTutor.name}
->>>>>>> 181f83f (Updated Features)
+
                     className="w-full h-full object-cover"
                   />
                 ) : (
                   <span className="text-xl font-bold text-white">
-<<<<<<< HEAD
-                    {activeTutor.name ? activeTutor.name.charAt(0).toUpperCase() : '?'}
-=======
                     {activeTutor.name
                       ? activeTutor.name.charAt(0).toUpperCase()
                       : "?"}
->>>>>>> 181f83f (Updated Features)
+
                   </span>
                 )}
               </div>
               <div>
-<<<<<<< HEAD
-                <h3 className="font-semibold">{activeTutor.name}</h3>
-                <p className="text-xs text-indigo-200">
-                  {activeTutor.subjects?.slice(0, 2).join(', ')}
-                  {activeTutor.subjects?.length > 2 ? '...' : ''}
-                </p>
-=======
                 <h3 className="font-bold text-lg">{activeTutor.name}</h3>
                 <p className="text-xs text-indigo-100">
                   {activeTutor.subjects?.slice(0, 2).join(", ")}
@@ -630,20 +415,11 @@ const ChatInterface = ({
                     {!isPolling ? "Live" : "Syncing..."}
                   </span>
                 </div>
->>>>>>> 181f83f (Updated Features)
+
               </div>
             </>
           )}
         </div>
-<<<<<<< HEAD
-        
-        <div className="flex items-center space-x-3">
-          {/* Clear Chat Button */}
-          {messages.length > 0 && !loading && (
-            <button 
-              onClick={() => setShowClearConfirm(true)}
-              className="text-white hover:text-red-200 transition-colors"
-=======
 
         <div className="flex items-center space-x-3">
           {/* Clear Chat Button */}
@@ -651,27 +427,13 @@ const ChatInterface = ({
             <button
               onClick={() => setShowClearConfirm(true)}
               className="text-white/90 hover:text-red-300 transition-all hover:scale-110 p-2 rounded-lg hover:bg-white/10"
->>>>>>> 181f83f (Updated Features)
+
               title="Clear chat history"
               disabled={clearingChat}
             >
               <FaTrash size={14} />
             </button>
           )}
-<<<<<<< HEAD
-          
-          {/* Close Button */}
-          <button 
-            onClick={onClose} 
-            className="text-white hover:text-indigo-200 transition-colors"
-            aria-label="Close chat"
-          >
-            <FaTimes size={16} />
-          </button>
-        </div>
-      </div>
-      
-=======
 
           {/* Close Button */}
           <button
@@ -684,7 +446,7 @@ const ChatInterface = ({
         </div>
       </div>
 
->>>>>>> 181f83f (Updated Features)
+
       {/* Confirmation Dialog */}
       {showClearConfirm && (
         <div className="p-3 bg-red-50 border-b border-red-200">
@@ -693,12 +455,9 @@ const ChatInterface = ({
               Are you sure you want to clear all chat history?
             </p>
             <p className="text-sm text-gray-600 mb-3">
-<<<<<<< HEAD
-              This action cannot be undone and will delete all messages from the database.
-=======
               This action cannot be undone and will delete all messages from the
               database.
->>>>>>> 181f83f (Updated Features)
+
             </p>
             <div className="flex justify-center space-x-3">
               <button
@@ -729,38 +488,6 @@ const ChatInterface = ({
           </div>
         </div>
       )}
-<<<<<<< HEAD
-      
-      {/* Messages Container */}
-      <div 
-        ref={chatContainerRef} 
-        className="flex-1 overflow-y-auto p-4 bg-gray-50"
-        style={{ minHeight: '300px', maxHeight: '400px' }}
-      >
-        {loading ? (
-          <div className="flex justify-center items-center h-full">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-          </div>
-        ) : error ? (
-          <div className="text-red-500 text-center p-4">{error}</div>
-        ) : messages.length === 0 ? (
-          <div className="text-center text-gray-500 p-4">
-            <p>No messages yet. Start the conversation!</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {messages.map(message => (
-              <div 
-                key={message.id} 
-                className={`flex ${
-                  message.isSystemMessage ? 'justify-center' : 
-                  message.senderId === currentUser?.id ? 'justify-end' : 'justify-start'
-                }`}
-              >
-                {message.isSystemMessage ? (
-                  // System message (like "chat cleared")
-                  <div className="bg-gray-200 text-gray-600 px-4 py-2 rounded-lg text-xs italic">
-=======
 
       {/* Messages Container */}
       <div
@@ -809,18 +536,11 @@ const ChatInterface = ({
                 {message.isSystemMessage ? (
                   // System message (like "chat cleared")
                   <div className="bg-gray-200 text-gray-600 px-4 py-2 rounded-full text-xs italic shadow-sm">
->>>>>>> 181f83f (Updated Features)
+
                     {message.text}
                   </div>
                 ) : (
                   // Regular user message
-<<<<<<< HEAD
-                  <div 
-                    className={`max-w-[80%] px-4 py-2 rounded-lg ${
-                      message.senderId === currentUser?.id 
-                        ? `bg-indigo-600 text-white ${message.failed ? 'opacity-70' : ''}`
-                        : 'bg-white border border-gray-200 text-gray-800'
-=======
                   <div
                     className={`max-w-[75%] px-4 py-3 rounded-2xl transition-all duration-200 shadow-sm hover:shadow-md ${
                       message.senderId === currentUser?.id
@@ -828,40 +548,12 @@ const ChatInterface = ({
                             message.failed ? "opacity-70" : ""
                           }`
                         : "bg-white border border-gray-200 text-gray-800"
->>>>>>> 181f83f (Updated Features)
+
                     }`}
                   >
                     {message.pending && (
                       <div className="flex justify-end mb-1">
                         <span className="w-3 h-3 animate-spin rounded-full border-2 border-white border-t-transparent mr-1"></span>
-<<<<<<< HEAD
-                        <span className="text-xs text-indigo-200">Sending...</span>
-                      </div>
-                    )}
-                    
-                    {message.failed && (
-                      <div className="flex justify-end mb-1">
-                        <span className="text-xs text-red-300">Failed to send</span>
-                      </div>
-                    )}
-                    
-                    <p className="text-sm">{message.text}</p>
-                    
-                    <div className="mt-1 flex justify-end">
-                      <p 
-                        className={`text-xs ${
-                          message.senderId === currentUser?.id 
-                            ? 'text-indigo-200' 
-                            : 'text-gray-400'
-                        }`}
-                      >
-                        {formatMessageTime(message.timestamp)}
-                        {message.senderId === currentUser?.id && !message.pending && !message.failed && (
-                          <span className="ml-2">
-                            {message.read ? '• Read' : '• Sent'}
-                          </span>
-                        )}
-=======
                         <span className="text-xs text-indigo-200">
                           Sending...
                         </span>
@@ -887,7 +579,7 @@ const ChatInterface = ({
                         }`}
                       >
                         {formatMessageTime(message.timestamp)}
->>>>>>> 181f83f (Updated Features)
+
                       </p>
                     </div>
                   </div>
@@ -898,41 +590,28 @@ const ChatInterface = ({
           </div>
         )}
       </div>
-<<<<<<< HEAD
-      
-      {/* Message Input */}
-      <div className="px-4 py-3 bg-white border-t">
-        <form onSubmit={sendMessage} className="flex">
-=======
 
       {/* Message Input */}
       <div className="px-4 py-4 bg-white border-t border-gray-200">
         <form onSubmit={sendMessage} className="flex items-center space-x-2">
->>>>>>> 181f83f (Updated Features)
+
           <input
             type="text"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Type your message..."
-<<<<<<< HEAD
-            className="flex-1 border border-gray-300 rounded-l-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-=======
             className="flex-1 border border-gray-300 rounded-full py-3 px-5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-sm hover:shadow-md"
->>>>>>> 181f83f (Updated Features)
+
             disabled={loading || sending}
           />
           <button
             type="submit"
             disabled={!message.trim() || sending || loading}
-<<<<<<< HEAD
-            className={`bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-r-md transition duration-200 flex items-center justify-center ${
-              !message.trim() || sending || loading ? 'opacity-50 cursor-not-allowed' : ''
-=======
             className={`bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white p-4 rounded-full transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105 ${
               !message.trim() || sending || loading
                 ? "opacity-50 cursor-not-allowed transform-none"
                 : ""
->>>>>>> 181f83f (Updated Features)
+
             }`}
           >
             {sending ? (
@@ -947,8 +626,5 @@ const ChatInterface = ({
   );
 };
 
-<<<<<<< HEAD
 export default ChatInterface;
-=======
-export default ChatInterface;
->>>>>>> 181f83f (Updated Features)
+

@@ -1,28 +1,9 @@
-<<<<<<< HEAD
-import User from '../models/User.js';
-=======
 import User from "../models/User.js";
->>>>>>> 181f83f (Updated Features)
+
 
 // Get all tutors
 export const getAllTutors = async (req, res) => {
   try {
-<<<<<<< HEAD
-    const tutors = await User.find({ role: 'tutor' })
-      .select('-password -createdAt -updatedAt')
-      .lean();
-    
-    res.status(200).json({
-      success: true,
-      count: tutors.length,
-      data: tutors
-    });
-  } catch (error) {
-    console.error('Error fetching tutors:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error'
-=======
     // Only fetch tutors who have paid registration fee (subscribed)
     const tutors = await User.find({
       role: "tutor",
@@ -41,7 +22,7 @@ export const getAllTutors = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Server error",
->>>>>>> 181f83f (Updated Features)
+
     });
   }
 };
@@ -49,40 +30,6 @@ export const getAllTutors = async (req, res) => {
 // Get tutor's own profile (protected)
 export const getTutorProfile = async (req, res) => {
   try {
-<<<<<<< HEAD
-    console.log('Getting tutor profile for user ID:', req.user.id);
-    
-    const tutor = await User.findById(req.user.id).select('-password');
-    
-    if (!tutor) {
-      console.log('No tutor found for ID:', req.user.id);
-      return res.status(404).json({
-        success: false,
-        message: 'Tutor not found'
-      });
-    }
-
-    if (tutor.role !== 'tutor') {
-      console.log('User is not a tutor:', req.user.id);
-      return res.status(403).json({
-        success: false,
-        message: 'User is not a tutor'
-      });
-    }
-    
-    console.log('Tutor profile found:', tutor.name);
-    
-    res.status(200).json({
-      success: true,
-      data: tutor
-    });
-  } catch (error) {
-    console.error('Error in getTutorProfile:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error',
-      error: error.message
-=======
     console.log("Getting tutor profile for user ID:", req.user.id);
 
     const tutor = await User.findById(req.user.id).select("-password");
@@ -115,7 +62,7 @@ export const getTutorProfile = async (req, res) => {
       success: false,
       message: "Server error",
       error: error.message,
->>>>>>> 181f83f (Updated Features)
+
     });
   }
 };
@@ -123,20 +70,6 @@ export const getTutorProfile = async (req, res) => {
 // Update tutor profile (protected)
 export const updateTutorProfile = async (req, res) => {
   try {
-<<<<<<< HEAD
-    console.log('Update tutor profile request for user ID:', req.user.id);
-    console.log('Update data:', req.body);
-    
-    const allowedFields = [
-      'bio', 'qualifications', 'subjects', 'classes', 
-      'monthlyRate', 'phoneNumber', 'whatsappNumber',
-      'availableTimeSlots', 'profilePicture'
-    ];
-    
-    // Create an object with only the fields that are allowed to be updated
-    const updateData = {};
-    allowedFields.forEach(field => {
-=======
     console.log("Update tutor profile request for user ID:", req.user.id);
     console.log("Update data:", req.body);
 
@@ -160,19 +93,11 @@ export const updateTutorProfile = async (req, res) => {
     // Create an object with only the fields that are allowed to be updated
     const updateData = {};
     allowedFields.forEach((field) => {
->>>>>>> 181f83f (Updated Features)
+
       if (req.body[field] !== undefined) {
         updateData[field] = req.body[field];
       }
     });
-<<<<<<< HEAD
-    
-    console.log('Sanitized update data:', updateData);
-    
-    // Add profileCompleted flag
-    updateData.profileCompleted = true;
-    
-=======
 
     console.log("Sanitized update data:", updateData);
 
@@ -181,36 +106,11 @@ export const updateTutorProfile = async (req, res) => {
     // Add profileCompleted flag
     updateData.profileCompleted = true;
 
->>>>>>> 181f83f (Updated Features)
+
     const updatedTutor = await User.findByIdAndUpdate(
       req.user.id,
       { $set: updateData },
       { new: true, runValidators: true }
-<<<<<<< HEAD
-    ).select('-password');
-    
-    if (!updatedTutor) {
-      console.log('No tutor found to update for ID:', req.user.id);
-      return res.status(404).json({
-        success: false,
-        message: 'Tutor not found'
-      });
-    }
-    
-    console.log('Tutor profile updated successfully');
-    
-    res.status(200).json({
-      success: true,
-      data: updatedTutor,
-      message: 'Profile updated successfully'
-    });
-  } catch (error) {
-    console.error('Error in updateTutorProfile:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error',
-      error: error.message
-=======
     ).select("-password");
 
     if (!updatedTutor) {
@@ -234,7 +134,7 @@ export const updateTutorProfile = async (req, res) => {
       success: false,
       message: "Server error",
       error: error.message,
->>>>>>> 181f83f (Updated Features)
+
     });
   }
 };
@@ -249,27 +149,18 @@ export const addReview = async (req, res) => {
     if (!rating || rating < 1 || rating > 5) {
       return res.status(400).json({
         success: false,
-<<<<<<< HEAD
-        message: 'Please provide a valid rating between 1-5'
-=======
         message: "Please provide a valid rating between 1-5",
->>>>>>> 181f83f (Updated Features)
+
       });
     }
 
     // Find the tutor
     const tutor = await User.findById(tutorId);
-<<<<<<< HEAD
-    if (!tutor || tutor.role !== 'tutor') {
-      return res.status(404).json({
-        success: false,
-        message: 'Tutor not found'
-=======
     if (!tutor || tutor.role !== "tutor") {
       return res.status(404).json({
         success: false,
         message: "Tutor not found",
->>>>>>> 181f83f (Updated Features)
+
       });
     }
 
@@ -277,55 +168,40 @@ export const addReview = async (req, res) => {
     if (req.user.id === tutorId) {
       return res.status(400).json({
         success: false,
-<<<<<<< HEAD
-        message: 'You cannot review yourself'
-=======
         message: "You cannot review yourself",
->>>>>>> 181f83f (Updated Features)
+
       });
     }
 
     // Check if parent has already submitted a review for this tutor
     const existingReviewIndex = tutor.reviews.findIndex(
-<<<<<<< HEAD
-      r => r.parent.toString() === req.user.id
-=======
       (r) => r.parent.toString() === req.user.id
->>>>>>> 181f83f (Updated Features)
+
     );
 
     if (existingReviewIndex !== -1) {
       // Update existing review
       tutor.reviews[existingReviewIndex].rating = rating;
-<<<<<<< HEAD
-      tutor.reviews[existingReviewIndex].review = review || '';
-=======
       tutor.reviews[existingReviewIndex].review = review || "";
->>>>>>> 181f83f (Updated Features)
+
       tutor.reviews[existingReviewIndex].date = Date.now();
     } else {
       // Add new review
       tutor.reviews.push({
         parent: req.user.id,
         rating,
-<<<<<<< HEAD
-        review: review || '',
-=======
         review: review || "",
->>>>>>> 181f83f (Updated Features)
+
       });
       tutor.reviewCount += 1;
     }
 
     // Calculate new average rating
-<<<<<<< HEAD
-    const totalRating = tutor.reviews.reduce((sum, item) => sum + item.rating, 0);
-=======
     const totalRating = tutor.reviews.reduce(
       (sum, item) => sum + item.rating,
       0
     );
->>>>>>> 181f83f (Updated Features)
+
     tutor.rating = totalRating / tutor.reviews.length;
 
     await tutor.save();
@@ -334,17 +210,6 @@ export const addReview = async (req, res) => {
       success: true,
       data: {
         rating: tutor.rating,
-<<<<<<< HEAD
-        reviewCount: tutor.reviewCount
-      },
-      message: 'Review submitted successfully'
-    });
-  } catch (error) {
-    console.error('Error adding review:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error'
-=======
         reviewCount: tutor.reviewCount,
       },
       message: "Review submitted successfully",
@@ -354,7 +219,7 @@ export const addReview = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Server error",
->>>>>>> 181f83f (Updated Features)
+
     });
   }
 };
@@ -363,23 +228,6 @@ export const addReview = async (req, res) => {
 export const getTutorReviews = async (req, res) => {
   try {
     const tutorId = req.params.id;
-<<<<<<< HEAD
-    
-    const tutor = await User.findById(tutorId)
-      .populate({
-        path: 'reviews.parent',
-        select: 'name profilePicture'
-      });
-    
-    if (!tutor) {
-      return res.status(404).json({
-        success: false,
-        message: 'Tutor not found'
-      });
-    }
-    
-    const reviews = tutor.reviews.map(review => ({
-=======
 
     const tutor = await User.findById(tutorId).populate({
       path: "reviews.parent",
@@ -394,26 +242,12 @@ export const getTutorReviews = async (req, res) => {
     }
 
     const reviews = tutor.reviews.map((review) => ({
->>>>>>> 181f83f (Updated Features)
+
       id: review._id,
       parentName: review.parent.name,
       parentProfilePicture: review.parent.profilePicture,
       rating: review.rating,
       review: review.review,
-<<<<<<< HEAD
-      date: review.date
-    }));
-    
-    res.status(200).json({
-      success: true,
-      data: reviews
-    });
-  } catch (error) {
-    console.error('Error getting reviews:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error'
-=======
       date: review.date,
     }));
 
@@ -426,7 +260,7 @@ export const getTutorReviews = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Server error",
->>>>>>> 181f83f (Updated Features)
+
     });
   }
 };
@@ -438,40 +272,6 @@ export const getTutorById = async (req, res) => {
     if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({
         success: false,
-<<<<<<< HEAD
-        message: 'Invalid tutor ID format'
-      });
-    }
-    
-    const tutor = await User.findById(req.params.id).select('-password');
-    
-    if (!tutor) {
-      return res.status(404).json({
-        success: false,
-        message: 'Tutor not found'
-      });
-    }
-    
-    if (tutor.role !== 'tutor') {
-      return res.status(400).json({
-        success: false,
-        message: 'User is not a tutor'
-      });
-    }
-    
-    return res.status(200).json({
-      success: true,
-      data: tutor
-    });
-  } catch (error) {
-    console.error('Error getting tutor by ID:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error'
-    });
-  }
-};
-=======
         message: "Invalid tutor ID format",
       });
     }
@@ -563,4 +363,4 @@ export const updateCenterInfo = async (req, res) => {
     });
   }
 };
->>>>>>> 181f83f (Updated Features)
+

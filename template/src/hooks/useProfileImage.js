@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-import { useState, useEffect } from 'react';
-=======
 import { useState, useEffect } from "react";
 
 // Generate avatar SVG data URL
@@ -14,7 +11,7 @@ const generateAvatarSVG = (name) => {
   const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='128' height='128'><rect fill='%236366F1' width='128' height='128'/><text fill='%23fff' font-family='sans-serif' font-size='48' dy='10.5' font-weight='bold' x='50%' y='50%' text-anchor='middle'>${initials}</text></svg>`;
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 };
->>>>>>> 181f83f (Updated Features)
+
 
 export const useProfileImage = (imageUrl, userName) => {
   const [processedImageUrl, setProcessedImageUrl] = useState(null);
@@ -22,22 +19,13 @@ export const useProfileImage = (imageUrl, userName) => {
 
   useEffect(() => {
     // Process the image URL when it changes
-<<<<<<< HEAD
-    if (imageUrl && typeof imageUrl === 'string') {
-=======
     if (imageUrl && typeof imageUrl === "string") {
->>>>>>> 181f83f (Updated Features)
+
       // Clean the URL (remove quotes, etc.)
       let processedUrl = imageUrl.trim();
       if (processedUrl.startsWith('"') && processedUrl.endsWith('"')) {
         processedUrl = processedUrl.substring(1, processedUrl.length - 1);
       }
-<<<<<<< HEAD
-      
-      console.log('Processing image URL:', imageUrl, ' → ', processedUrl);
-      setProcessedImageUrl(processedUrl);
-      setImageError(false);
-=======
 
       // Filter out blob URLs (silently, as this is expected behavior)
       if (processedUrl.startsWith("blob:")) {
@@ -46,7 +34,7 @@ export const useProfileImage = (imageUrl, userName) => {
         setProcessedImageUrl(processedUrl);
         setImageError(false);
       }
->>>>>>> 181f83f (Updated Features)
+
     } else {
       setProcessedImageUrl(null);
     }
@@ -54,26 +42,6 @@ export const useProfileImage = (imageUrl, userName) => {
 
   // Handle image errors
   const handleImageError = () => {
-<<<<<<< HEAD
-    console.log("Profile image failed to load:", processedImageUrl);
-    setImageError(true);
-    
-    // Return a UI Avatars URL as fallback
-    return `https://ui-avatars.com/api/?name=${encodeURIComponent(userName || 'User')}&background=6366F1&color=fff&size=128`;
-  };
-
-  // Return the fallback URL if there was an error or no image URL
-  const displayUrl = imageError || !processedImageUrl
-    ? `https://ui-avatars.com/api/?name=${encodeURIComponent(userName || 'User')}&background=6366F1&color=fff&size=128`
-    : processedImageUrl;
-
-  return { 
-    imageUrl: displayUrl, 
-    handleImageError,
-    isPlaceholder: imageError || !processedImageUrl
-  };
-};
-=======
     setImageError(true);
 
     // Return an inline SVG avatar as fallback
@@ -92,4 +60,4 @@ export const useProfileImage = (imageUrl, userName) => {
     isPlaceholder: imageError || !processedImageUrl,
   };
 };
->>>>>>> 181f83f (Updated Features)
+
