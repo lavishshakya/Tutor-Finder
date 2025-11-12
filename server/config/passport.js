@@ -5,12 +5,18 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export default function (passport) {
+  // Use environment-based callback URL
+  const callbackURL = process.env.GOOGLE_CALLBACK_URL || 
+    (process.env.NODE_ENV === 'production' 
+      ? 'https://tutor-finder-five-ebon.vercel.app/api/auth/google/callback'
+      : 'http://localhost:5001/api/auth/google/callback');
+
   passport.use(
     new GoogleStrategy(
       {
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: process.env.GOOGLE_CALLBACK_URL,
+        callbackURL: callbackURL,
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
