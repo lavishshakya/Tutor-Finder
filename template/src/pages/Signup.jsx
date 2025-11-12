@@ -4,7 +4,7 @@ import axios from "axios";
 import { FaEye, FaEyeSlash, FaCheckCircle } from "react-icons/fa";
 import GoogleAuthButton from "../components/GoogleAuthButton";
 import { getApiUrl } from "../services/api";
-
+import signupImage from "../assets/2.jpg";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -194,7 +194,6 @@ const Register = () => {
       setError(
         err.response?.data?.message || "Registration failed. Please try again."
       );
-
     } finally {
       setLoading(false);
     }
@@ -217,7 +216,7 @@ const Register = () => {
             </p>
           </div>
           <img
-            src="src/assets/2.jpg"
+            src={signupImage}
             alt="Register illustration"
             className="w-full h-auto object-contain rounded-2xl shadow-2xl"
           />
@@ -241,7 +240,6 @@ const Register = () => {
           </div>
         </div>
       </div>
-
 
       {/* Right side with registration form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
@@ -777,7 +775,6 @@ const Register = () => {
               Sign In Instead
             </Link>
           </div>
-
         </div>
       </div>
     </div>
@@ -785,4 +782,3 @@ const Register = () => {
 };
 
 export default Register;
-

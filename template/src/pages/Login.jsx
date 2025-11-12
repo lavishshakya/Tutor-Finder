@@ -6,7 +6,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import PaymentModal from "../components/PaymentModal";
 import GoogleAuthButton from "../components/GoogleAuthButton";
 import { getApiUrl } from "../services/api";
-
+import loginImage from "../assets/1.jpg";
 
 const Login = () => {
   const { login } = useAuth();
@@ -95,7 +95,6 @@ const Login = () => {
         );
       }
 
-
       // Original login method through AuthContext
       // const result = await login(email, password);
       // if (!result.success) {
@@ -104,7 +103,6 @@ const Login = () => {
     } catch (err) {
       console.error("Login submission error:", err);
       setError("An unexpected error occurred. Please try again.");
-
     } finally {
       setLoading(false);
     }
@@ -153,7 +151,7 @@ const Login = () => {
             </p>
           </div>
           <img
-            src="/src/assets/1.jpg"
+            src={loginImage}
             alt="Login illustration"
             className="w-full h-auto object-contain rounded-2xl shadow-2xl"
           />
@@ -169,7 +167,6 @@ const Login = () => {
           </div>
         </div>
       </div>
-
 
       {/* Right side with login form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
@@ -295,7 +292,6 @@ const Login = () => {
             </div>
 
             <div className="flex items-center justify-between">
-
               <div className="flex items-center">
                 <input
                   type="checkbox"
@@ -318,7 +314,6 @@ const Login = () => {
                   to="/forgot-password"
                   className="text-sm text-indigo-600 hover:text-indigo-700 font-medium hover:underline transition-colors duration-200"
                 >
-
                   Forgot Password?
                 </Link>
               </div>
@@ -424,7 +419,6 @@ const Login = () => {
               Create New Account
             </Link>
           </div>
-
         </div>
       </div>
     </div>
@@ -432,4 +426,3 @@ const Login = () => {
 };
 
 export default Login;
-
