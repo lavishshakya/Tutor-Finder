@@ -37,7 +37,9 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.NODE_ENV === "production", // HTTPS only in production
+      httpOnly: true,
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // Cross-site cookies in production
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     },
   })
@@ -47,28 +49,36 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+// CORS Configuration
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "http://192.168.181.194:5173",
+  process.env.FRONTEND_URL, // Production frontend URL
+].filter(Boolean); // Remove undefined values
+
 app.use(
   cors({
     origin: function (origin, callback) {
-      const allowedOrigins = [
-        "http://localhost:5173",
-        "http://localhost:3000",
-        "http://192.168.181.194:5173",
-      ];
-
-      // For development, allow requests with no origin (like Postman)
+      // Allow requests with no origin (mobile apps, Postman, etc.)
       if (!origin) return callback(null, true);
 
-      if (allowedOrigins.indexOf(origin) === -1) {
-        // During development, you might want to allow all origins
-        // return callback(null, true);
+      // Check if origin is in allowed list
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
       }
 
-      return callback(null, true); // Allow all origins for now
+      // In production, be strict. In development, allow all
+      if (process.env.NODE_ENV === "production") {
+        return callback(new Error("Not allowed by CORS"));
+      }
+
+      return callback(null, true);
     },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+    exposedHeaders: ["Set-Cookie"],
   })
 );
 

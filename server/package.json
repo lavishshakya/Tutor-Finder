@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "build": "echo 'Server build complete'",
+    "vercel-build": "echo 'Vercel build complete'"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

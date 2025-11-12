@@ -1,19 +1,36 @@
 {
-  "version": 2,
-  "name": "tutor-finder-api",
-  "builds": [
-    {
-      "src": "index.js",
-      "use": "@vercel/node"
+    "version": 2,
+    "name": "tutor-finder-api",
+    "builds": [
+        {
+            "src": "index.js",
+            "use": "@vercel/node"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "index.js",
+            "methods": [
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE",
+                "PATCH",
+                "OPTIONS"
+            ]
+        }
+    ],
+    "env": {
+        "NODE_ENV": "production"
+    },
+    "regions": [
+        "iad1"
+    ],
+    "functions": {
+        "index.js": {
+            "maxDuration": 30,
+            "memory": 1024
+        }
     }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "index.js"
-    }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
 }
