@@ -18,10 +18,27 @@ import razorpayRoutes from "./routes/razorpayRoutes.js"; // Import Razorpay rout
 // Load environment variables
 dotenv.config();
 
-// Connect to database
-connectDB();
-
 const app = express();
+
+// Connect to database (lazy connection for serverless)
+let isConnected = false;
+const ensureDBConnection = async () => {
+  if (!isConnected) {
+    await connectDB();
+    isConnected = true;
+  }
+};
+
+// Middleware to ensure DB connection
+app.use(async (req, res, next) => {
+  try {
+    await ensureDBConnection();
+    next();
+  } catch (error) {
+    console.error("Database connection failed:", error);
+    res.status(500).json({ error: "Database connection failed" });
+  }
+});
 
 // Passport configuration
 passportConfig(passport);
@@ -54,7 +71,9 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
   "http://192.168.181.194:5173",
-  process.env.FRONTEND_URL, // Production frontend URL
+  "https://tutor-finder-kvwb.vercel.app", // Production frontend
+  "https://tutor-finder-kvwb-5s0pqh1im-lavishshakyas-projects.vercel.app", // Preview deployment
+  process.env.FRONTEND_URL, // Additional frontend URL from env
 ].filter(Boolean); // Remove undefined values
 
 app.use(
@@ -63,8 +82,8 @@ app.use(
       // Allow requests with no origin (mobile apps, Postman, etc.)
       if (!origin) return callback(null, true);
 
-      // Check if origin is in allowed list
-      if (allowedOrigins.includes(origin)) {
+      // Check if origin is in allowed list or matches Vercel preview pattern
+      if (allowedOrigins.includes(origin) || origin.includes('vercel.app')) {
         return callback(null, true);
       }
 
@@ -94,7 +113,20 @@ app.use("/api/razorpay", razorpayRoutes); // Add Razorpay routes
 
 // Basic route for testing
 app.get("/", (req, res) => {
-  res.send("API is running...");
+  res.json({ 
+    success: true, 
+    message: "Tutor Finder API is running",
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.json({ 
+    success: true, 
+    status: "healthy",
+    database: isConnected ? "connected" : "disconnected"
+  });
 });
 
 // Error handling middleware
@@ -103,6 +135,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({
     success: false,
     error: err.message || "Server Error",
+    stack: process.env.NODE_ENV === "development" ? err.stack : undefined
   });
 });
 

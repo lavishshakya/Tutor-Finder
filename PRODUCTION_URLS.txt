@@ -1,0 +1,35 @@
+# Production URLs Reference
+
+## Fill this out after deployment:
+
+### Backend (API Server)
+**Vercel URL:** `_______________________________`
+
+**Example:** `https://tutor-finder-api.vercel.app`
+
+### Frontend (React App)
+**Vercel URL:** `_______________________________`
+
+**Example:** `https://tutor-finder.vercel.app`
+
+---
+
+## Environment Variables to Update
+
+After deployment, update these in Vercel:
+
+### Backend Project
+- `GOOGLE_CALLBACK_URL` → Your backend URL + `/api/auth/google/callback`
+- `FRONTEND_URL` → Your frontend URL
+
+### Frontend Project  
+- `VITE_API_URL` → Your backend URL
+
+---
+
+## Google OAuth Console
+Update redirect URIs with your actual URLs:
+- Authorized redirect URIs: `https://YOUR-BACKEND/api/auth/google/callback`
+- Authorized JavaScript origins: 
+  - `https://YOUR-FRONTEND`
+  - `https://YOUR-BACKEND`
