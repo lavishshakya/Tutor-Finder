@@ -7,6 +7,7 @@
     "installCommand": "npm install",
     "devCommand": "npm run dev",
     "env": {
-        "NODE_ENV": "production"
+        "NODE_ENV": "production",
+        "VITE_API_URL": "https://tutor-finder-five-ebon.vercel.app"
     }
 }
