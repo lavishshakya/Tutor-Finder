@@ -15,7 +15,6 @@ import aiAssistantRoutes from "./routes/aiAssistantRoutes.js"; // Import AI assi
 import otpRoutes from "./routes/otpRoutes.js"; // Import OTP routes
 import razorpayRoutes from "./routes/razorpayRoutes.js"; // Import Razorpay routes
 
-
 // Load environment variables
 dotenv.config();
 
@@ -86,7 +85,6 @@ app.use("/api/razorpay", razorpayRoutes); // Add Razorpay routes
 // Basic route for testing
 app.get("/", (req, res) => {
   res.send("API is running...");
-
 });
 
 // Error handling middleware
@@ -95,14 +93,13 @@ app.use((err, req, res, next) => {
   res.status(500).json({
     success: false,
     error: err.message || "Server Error",
-
   });
 });
 
 const PORT = process.env.PORT || 5001;
 
 // For local development
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== "production") {
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on port ${PORT}`);
   });
@@ -110,4 +107,3 @@ if (process.env.NODE_ENV !== 'production') {
 
 // Export for Vercel serverless
 export default app;
-
