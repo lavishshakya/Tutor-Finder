@@ -8,7 +8,14 @@ import {
   FaLightbulb,
   FaChevronLeft,
   FaChevronRight,
+  FaInstagram,
 } from "react-icons/fa";
+import myimg from "../assets/myimg.jpeg";
+import dpslogo from "../assets/dps.jpg";
+import gmlogo from "../assets/gm.jpg";
+import minlogo from "../assets/min.jpg";
+import inologo from "../assets/ino.png";
+import techlogo from "../assets/tech.png";
 
 
 const AboutUs = () => {
@@ -16,72 +23,75 @@ const AboutUs = () => {
   const teamMembers = [
     {
       id: 1,
-      name: "Rajesh Sharma",
-      role: "Founder & CEO",
-      image: "/img/team/rajesh.jpg",
-      bio: "Former educator with 15 years of experience in both public and private education systems. Rajesh founded Tutor Finder to bridge the gap between quality educators and students in need.",
+      name: "Lavish Shakya",
+      role: "Founder & Lead",
+      image: myimg,
+      instagram: "/lavishshakya66/",
+      bio: "Visionary entrepreneur dedicated to revolutionizing education through technology and connecting students with quality tutors.",
     },
     {
       id: 2,
-      name: "Amit Patel",
-      role: "CTO",
-      image: "/img/team/amit.jpg",
-      bio: "Tech industry veteran with expertise in educational technology. Amit leads our development team in creating intuitive and accessible learning platforms.",
+      name: "Abhishek Shakya",
+      role: "Head of Academic Affairs & Educator",
+      image: "/img/team/abhishek.jpg",
+      instagram: "abhi_shakya5208/",
+      bio: "Experienced educator passionate about academic excellence and ensuring quality instruction across our tutor network.",
     },
     {
       id: 3,
-      name: "Priya Singh",
-      role: "Head of Tutor Relations",
-      image: "/img/team/priya.jpg",
-      bio: "With a background in talent acquisition and education, Priya ensures our platform attracts the most qualified and passionate tutors.",
+      name: "Upendra Shakya",
+      role: "Co-Founder and Marketing Strategist",
+      image: "/img/team/upendra.jpg",
+      instagram: "upendra__shakya/",
+      bio: "Strategic partner bringing expertise and vision to help scale Tutor Finder's mission.",
     },
     {
       id: 4,
-      name: "Vikram Mehta",
-      role: "Student Success Manager",
-      image: "/img/team/vikram.jpg",
-      bio: "Former academic counselor dedicated to helping students achieve their educational goals through personalized learning experiences.",
+      name: "Rachi Shakya",
+      role: "Co-Founder",
+      image: "/img/team/rachi.jpg",
+      instagram: "rachishakya066/",
+      bio: "Dedicated to creating meaningful educational experiences and building strong connections within our community.",
     },
-
   ];
 
   // Supporters data
   const supporters = [
     {
       id: 1,
-      name: "IIT Delhi",
-      image: "/img/supporters/iit-delhi.png",
-      description: "Academic Partner",
-    },
-    {
-      id: 2,
       name: "Delhi Public School",
-      image: "/img/supporters/dps.png",
+      image: dpslogo,
       description: "Educational Institution Partner",
     },
     {
-      id: 3,
+      id: 2,
       name: "TechEdu Foundation",
-      image: "/img/supporters/techedu.png",
+      image: inologo,
       description: "Non-profit Partner",
     },
     {
-      id: 4,
+      id: 3,
       name: "Learning Innovators",
-      image: "/img/supporters/learning-innovators.png",
+      image: techlogo,
       description: "EdTech Partner",
     },
     {
-      id: 5,
+      id: 4,
       name: "Ministry of Education",
-      image: "/img/supporters/ministry-edu.png",
+      image: minlogo,
       description: "Government Partner",
     },
     {
-      id: 6,
+      id: 5,
       name: "Future Scholars Program",
       image: "/img/supporters/future-scholars.png",
       description: "Scholarship Partner",
+    },
+    {
+      id: 6,
+      name: "GM Royal International School",
+      image: gmlogo,
+      description: "Educational Institution Partner",
     },
   ];
 
@@ -141,30 +151,48 @@ const AboutUs = () => {
   const milestones = [
     {
       year: 2020,
+      icon: "🚀",
+      title: "Foundation",
       event:
         "Tutor Finder was founded with a mission to connect students with quality tutors",
     },
     {
       year: 2021,
+      icon: "📈",
+      title: "Growth",
       event:
-        "Expanded our tutor network to include over 1,000 verified professionals",
+        "Expanded our tutor network to include over 1,000 verified professionals across multiple subjects and regions",
     },
     {
       year: 2022,
-      event: "Launched our mobile app to facilitate learning on-the-go",
+      icon: "📱",
+      title: "Mobile Launch",
+      event: "Launched our mobile app on iOS and Android to facilitate seamless learning on-the-go",
     },
     {
       year: 2023,
-      event: "Introduced specialized subject tracks and certification programs",
+      icon: "⭐",
+      title: "Innovation",
+      event: "Introduced specialized subject tracks, certification programs, and AI-powered tutor matching",
     },
     {
       year: 2024,
+      icon: "🎓",
+      title: "Milestone",
       event:
-        "Reached milestone of helping 10,000+ students improve their academic performance",
+        "Reached milestone of helping 10,000+ students improve their academic performance and achieve their goals",
     },
     {
       year: 2025,
-      event: "Expanded internationally to serve students across 20+ countries",
+      icon: "🌍",
+      title: "Global Expansion",
+      event: "Expanded internationally to serve students across 20+ countries with localized content",
+    },
+    {
+      year: 2026,
+      icon: "✨",
+      title: "Future",
+      event: "Continuing to innovate with advanced AI technology and expanding our global tutor community",
     },
   ];
 
@@ -183,7 +211,6 @@ const AboutUs = () => {
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
-      setCurrentSlide(0); // Reset to first slide on resize
     };
 
     window.addEventListener("resize", handleResize);
@@ -203,29 +230,24 @@ const AboutUs = () => {
     }
   }, []);
 
-  // Auto-play carousel
+  // Auto-play carousel - infinite circular loop
   useEffect(() => {
-    if (!isAutoPlaying) return;
-
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % totalSlides);
     }, 4000);
 
     return () => clearInterval(interval);
-  }, [isAutoPlaying, totalSlides]);
+  }, [totalSlides]);
 
   const nextSlide = () => {
-    setIsAutoPlaying(false);
     setCurrentSlide((prev) => (prev + 1) % totalSlides);
   };
 
   const prevSlide = () => {
-    setIsAutoPlaying(false);
     setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
   };
 
   const goToSlide = (index) => {
-    setIsAutoPlaying(false);
     setCurrentSlide(index);
   };
 
@@ -313,18 +335,33 @@ const AboutUs = () => {
                 key={member.id}
                 className="bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:-translate-y-2 hover:shadow-lg"
               >
-                <img
-                  src={member.image}
-                  alt={member.name}
-                  className="w-full h-64 object-cover object-center"
-                  onError={(e) => {
-                    e.target.src =
-                      "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Crect fill='%23ddd' width='300' height='300'/%3E%3Ctext fill='%23999' font-family='sans-serif' font-size='18' dy='10.5' font-weight='bold' x='50%25' y='50%25' text-anchor='middle'%3ETeam Member%3C/text%3E%3C/svg%3E";
-
-                  }}
-                />
+                <div className="w-full h-72 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center overflow-hidden">
+                  <img
+                    src={member.image}
+                    alt={member.name}
+                    className="w-full h-full object-contain object-center"
+                    onError={(e) => {
+                      const memberName = member.name;
+                      e.target.src =
+                        `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Crect fill='%23ddd' width='300' height='300'/%3E%3Ctext fill='%23999' font-family='sans-serif' font-size='14' dy='10.5' font-weight='bold' x='50%25' y='50%25' text-anchor='middle'%3E${encodeURIComponent(memberName)}%3C/text%3E%3C/svg%3E`;
+                    }}
+                  />
+                </div>
                 <div className="p-6">
-                  <h3 className="text-xl font-bold mb-1">{member.name}</h3>
+                  <div className="flex items-center justify-between mb-1">
+                    <h3 className="text-xl font-bold">{member.name}</h3>
+                    {member.instagram && (
+                      <a
+                        href={`https://instagram.com/${member.instagram.replace('@', '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-pink-500 hover:text-pink-600 transition duration-200"
+                        title={`Follow ${member.name} on Instagram`}
+                      >
+                        <FaInstagram size={20} />
+                      </a>
+                    )}
+                  </div>
                   <p className="text-indigo-600 font-medium mb-3">
                     {member.role}
                   </p>
@@ -347,25 +384,35 @@ const AboutUs = () => {
           <div className="absolute top-20 left-10 w-72 h-72 bg-yellow-500 rounded-full mix-blend-overlay filter blur-3xl opacity-20 animate-blob"></div>
           <div className="absolute top-40 right-10 w-72 h-72 bg-pink-500 rounded-full mix-blend-overlay filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
           <div className="absolute -bottom-8 left-1/2 w-72 h-72 bg-purple-500 rounded-full mix-blend-overlay filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
+          
+          {/* Floating shapes */}
+          <div className="absolute top-1/4 left-1/4 w-20 h-20 border-2 border-yellow-400/20 rounded-full animate-pulse"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-32 h-32 border-2 border-pink-400/20 rounded-full animate-pulse animation-delay-2000"></div>
+          <div className="absolute top-1/2 right-1/4 w-16 h-16 border-2 border-purple-400/20 rounded-full animate-pulse animation-delay-4000"></div>
         </div>
 
         <div className="container mx-auto px-4 sm:px-6 relative z-10">
           {/* Section Header */}
-          <div className="text-center mb-12 sm:mb-16">
+          <div className="text-center mb-12 sm:mb-16 animate-fade-in">
             <div className="inline-block mb-4 sm:mb-6">
-              <span className="bg-yellow-400 text-indigo-900 px-4 sm:px-6 py-2 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider shadow-lg">
-                Trusted Partners
+              <span className="bg-gradient-to-r from-yellow-400 to-orange-400 text-indigo-900 px-4 sm:px-6 py-2 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider shadow-lg hover:shadow-yellow-500/50 transition-shadow duration-300">
+                ⭐ Trusted Partners
               </span>
             </div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 sm:mb-6">
-              <span className="text-white">Backed by the</span>
-              <span className="block bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500 bg-clip-text text-transparent mt-2">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 sm:mb-6 leading-tight">
+              <span className="text-white block">Backed by the</span>
+              <span className="block bg-gradient-to-r from-yellow-300 via-yellow-400 to-orange-400 bg-clip-text text-transparent animate-pulse">
                 Best in Education
               </span>
             </h2>
             <p className="text-base sm:text-lg md:text-xl text-gray-200 max-w-3xl mx-auto leading-relaxed px-4">
               Proudly partnering with India's leading educational institutions
             </p>
+            <div className="mt-6 flex justify-center gap-2">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-1 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full animate-pulse" style={{width: `${20 + i * 10}px`, animationDelay: `${i * 0.2}s`}}></div>
+              ))}
+            </div>
           </div>
 
           {/* Carousel Container */}
@@ -499,7 +546,7 @@ const AboutUs = () => {
                 isMobile
                   ? "top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"
                   : "left-0 sm:-left-4 md:-left-6 top-1/2 -translate-y-1/2"
-              } bg-white hover:bg-yellow-400 text-indigo-900 w-12 h-12 sm:w-14 sm:h-14 rounded-full shadow-2xl hover:shadow-yellow-500/50 flex items-center justify-center transition-all duration-300 hover:scale-110 z-10`}
+              } bg-gradient-to-r from-yellow-400 to-orange-400 hover:from-yellow-500 hover:to-orange-500 text-indigo-900 w-12 h-12 sm:w-14 sm:h-14 rounded-full shadow-2xl hover:shadow-yellow-500/70 flex items-center justify-center transition-all duration-300 hover:scale-125 z-10 font-bold`}
               aria-label="Previous slide"
             >
               {isMobile ? (
@@ -515,7 +562,7 @@ const AboutUs = () => {
                 isMobile
                   ? "bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2"
                   : "right-0 sm:-right-4 md:-right-6 top-1/2 -translate-y-1/2"
-              } bg-white hover:bg-yellow-400 text-indigo-900 w-12 h-12 sm:w-14 sm:h-14 rounded-full shadow-2xl hover:shadow-yellow-500/50 flex items-center justify-center transition-all duration-300 hover:scale-110 z-10`}
+              } bg-gradient-to-r from-yellow-400 to-orange-400 hover:from-yellow-500 hover:to-orange-500 text-indigo-900 w-12 h-12 sm:w-14 sm:h-14 rounded-full shadow-2xl hover:shadow-yellow-500/70 flex items-center justify-center transition-all duration-300 hover:scale-125 z-10 font-bold`}
               aria-label="Next slide"
             >
               {isMobile ? (
@@ -526,15 +573,15 @@ const AboutUs = () => {
             </button>
 
             {/* Dots Navigation */}
-            <div className="flex justify-center gap-2 sm:gap-3 mt-8 sm:mt-12">
+            <div className="flex justify-center gap-2 sm:gap-3 mt-8 sm:mt-12 pb-4">
               {Array.from({ length: totalSlides }).map((_, index) => (
                 <button
                   key={index}
                   onClick={() => goToSlide(index)}
-                  className={`transition-all duration-300 rounded-full ${
+                  className={`transition-all duration-300 rounded-full hover:scale-110 ${
                     currentSlide === index
-                      ? "w-8 sm:w-12 h-2 sm:h-3 bg-yellow-400"
-                      : "w-2 sm:w-3 h-2 sm:h-3 bg-white/50 hover:bg-white/80"
+                      ? "w-8 sm:w-12 h-2 sm:h-3 bg-gradient-to-r from-yellow-400 to-orange-400 shadow-lg shadow-yellow-500/50"
+                      : "w-2 sm:w-3 h-2 sm:h-3 bg-white/40 hover:bg-white/70 backdrop-blur-sm"
                   }`}
                   aria-label={`Go to slide ${index + 1}`}
                 />
@@ -544,50 +591,39 @@ const AboutUs = () => {
 
           {/* Trust indicators */}
           <div className="mt-16 sm:mt-20 grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 max-w-5xl mx-auto">
-            <div className="text-center">
-              <div className="text-3xl sm:text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-yellow-300 to-yellow-500 bg-clip-text text-transparent mb-2">
-                10+
+            {[
+              { number: "10+", label: "Partner Institutions" },
+              { number: "50K+", label: "Students Impacted" },
+              { number: "100%", label: "Verified Partners" },
+              { number: "5★", label: "Partner Rating" }
+            ].map((stat, idx) => (
+              <div key={idx} className="text-center group cursor-default">
+                <div className="mb-4 transform group-hover:scale-110 transition-transform duration-300">
+                  <div className="text-3xl sm:text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-yellow-300 via-yellow-400 to-orange-400 bg-clip-text text-transparent">
+                    {stat.number}
+                  </div>
+                </div>
+                <p className="text-xs sm:text-sm text-gray-300 font-medium group-hover:text-white transition-colors duration-300">
+                  {stat.label}
+                </p>
+                <div className="mt-2 h-0.5 bg-gradient-to-r from-transparent via-yellow-400 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </div>
-              <p className="text-xs sm:text-sm text-gray-300 font-medium">
-                Partner Institutions
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl sm:text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-yellow-300 to-yellow-500 bg-clip-text text-transparent mb-2">
-                50K+
-              </div>
-              <p className="text-xs sm:text-sm text-gray-300 font-medium">
-                Students Impacted
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl sm:text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-yellow-300 to-yellow-500 bg-clip-text text-transparent mb-2">
-                100%
-              </div>
-              <p className="text-xs sm:text-sm text-gray-300 font-medium">
-                Verified Partners
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl sm:text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-yellow-300 to-yellow-500 bg-clip-text text-transparent mb-2">
-                5★
-              </div>
-              <p className="text-xs sm:text-sm text-gray-300 font-medium">
-                Partner Rating
-              </p>
-            </div>
+            ))}
           </div>
 
           {/* Call to action */}
           <div className="mt-12 sm:mt-16 text-center">
-            <p className="text-base sm:text-lg text-gray-200 mb-6 sm:mb-8">
+            <p className="text-base sm:text-lg text-gray-200 mb-6 sm:mb-8 font-semibold">
               Want to become a partner?
             </p>
-            <button className="group bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-indigo-900 font-bold py-3 sm:py-4 px-6 sm:px-10 rounded-full text-base sm:text-lg shadow-2xl hover:shadow-yellow-500/50 transform hover:scale-105 transition-all duration-300 inline-flex items-center gap-3">
-              <FaHandshake className="text-xl sm:text-2xl group-hover:rotate-12 transition-transform duration-300" />
-              Partner With Us
+            <button className="group relative bg-gradient-to-r from-yellow-400 to-orange-400 hover:from-yellow-500 hover:to-orange-500 text-indigo-900 font-bold py-3 sm:py-4 px-6 sm:px-10 rounded-full text-base sm:text-lg shadow-2xl hover:shadow-yellow-500/70 transform hover:scale-110 transition-all duration-300 inline-flex items-center gap-3 overflow-hidden">
+              {/* Shine effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-0 group-hover:opacity-100 -skew-x-12 translate-x-full group-hover:translate-x-0 transition-all duration-500"></div>
+              
+              <FaHandshake className="text-xl sm:text-2xl group-hover:rotate-12 transition-transform duration-300 relative z-10" />
+              <span className="relative z-10">Partner With Us</span>
               <svg
-                className="w-5 h-5 sm:w-6 sm:h-6 group-hover:translate-x-2 transition-transform duration-300"
+                className="w-5 h-5 sm:w-6 sm:h-6 group-hover:translate-x-2 transition-transform duration-300 relative z-10"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -622,7 +658,8 @@ const AboutUs = () => {
                     )}
                   </div>
                   <div className="bg-white rounded-lg shadow-md p-6 flex-1 transform transition duration-300 hover:-translate-x-2">
-                    <p className="text-lg">{milestone.event}</p>
+                    <h3 className="text-lg font-bold text-indigo-600 mb-2">{milestone.title}</h3>
+                    <p className="text-gray-700">{milestone.event}</p>
                   </div>
                 </div>
               ))}
@@ -716,6 +753,50 @@ const AboutUs = () => {
         /* Hide card backs */
         .supporter-card > div {
           backface-visibility: hidden;
+        }
+        
+        /* Fade in animation */
+        @keyframes fadeInScale {
+          from {
+            opacity: 0;
+            transform: scale(0.95) translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+          }
+        }
+        
+        .animate-fade-in {
+          animation: fadeInScale 0.8s ease-out;
+        }
+        
+        /* Floating animation */
+        @keyframes float {
+          0%, 100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-10px);
+          }
+        }
+        
+        .animate-float {
+          animation: float 3s ease-in-out infinite;
+        }
+        
+        /* Pulse animation */
+        @keyframes shadowPulse {
+          0%, 100% {
+            box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.4);
+          }
+          50% {
+            box-shadow: 0 0 0 10px rgba(251, 191, 36, 0);
+          }
+        }
+        
+        .animate-shadow-pulse {
+          animation: shadowPulse 2s infinite;
         }
         
         /* Fix Firefox transform issues */
