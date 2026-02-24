@@ -12,7 +12,7 @@ import {
   FaCopy,
   FaCheck,
 } from "react-icons/fa";
-import axios from "axios";
+import { api, API_BASE_URL } from "../services/api";
 
 const AIAssistant = () => {
   const { currentUser } = useAuth();
@@ -44,8 +44,7 @@ const AIAssistant = () => {
     setIsLoading(true);
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
-      const response = await axios.post(`${API_URL}/api/ai-assistant/hint`, {
+      const response = await api.post(`/api/ai-assistant/hint`, {
         question: question,
       });
 
