@@ -1,10 +1,30 @@
-import twilio from "twilio";
+let twilioClient = null;
 
-// Initialize Twilio client
-const twilioClient = twilio(
-  process.env.TWILIO_ACCOUNT_SID,
-  process.env.TWILIO_AUTH_TOKEN
-);
+// Safely initialize Twilio only if credentials exist
+try {
+  if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
+    // Create a lazy-loaded Twilio client
+    const getTwilio = async () => {
+      const twilioModule = await import("twilio");
+      return twilioModule.default(
+        process.env.TWILIO_ACCOUNT_SID,
+        process.env.TWILIO_AUTH_TOKEN
+      );
+    };
+    
+    // Initialize asynchronously
+    getTwilio()
+      .then(client => {
+        twilioClient = client;
+        console.log("✓ Twilio client initialized successfully");
+      })
+      .catch(error => {
+        console.warn("⚠ Twilio module not available - OTP via SMS disabled:", error.message);
+      });
+  }
+} catch (error) {
+  console.warn("⚠ Twilio initialization skipped:", error.message);
+}
 
 // Store OTPs temporarily (in production, use Redis)
 const otpStore = new Map();
@@ -48,6 +68,13 @@ export const sendOTP = async (req, res) => {
     });
 
     // Send SMS via Twilio
+    if (!twilioClient) {
+      return res.status(503).json({
+        success: false,
+        message: "OTP service is not configured. Please contact support or add Twilio credentials.",
+      });
+    }
+
     try {
       const message = await twilioClient.messages.create({
         body: `Your Tutor Finder verification code is: ${otp}. Valid for 5 minutes.`,
