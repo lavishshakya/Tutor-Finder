@@ -31,14 +31,6 @@ const AboutUs = () => {
     },
     {
       id: 2,
-      name: "Abhishek Shakya",
-      role: "Head of Academic Affairs & Educator",
-      image: "/img/team/abhishek.jpg",
-      instagram: "abhi_shakya5208/",
-      bio: "Experienced educator passionate about academic excellence and ensuring quality instruction across our tutor network.",
-    },
-    {
-      id: 3,
       name: "Upendra Shakya",
       role: "Co-Founder and Marketing Strategist",
       image: "/img/team/upendra.jpg",
@@ -46,7 +38,7 @@ const AboutUs = () => {
       bio: "Strategic partner bringing expertise and vision to help scale Tutor Finder's mission.",
     },
     {
-      id: 4,
+      id: 3,
       name: "Rachi Shakya",
       role: "Co-Founder",
       image: "/img/team/rachi.jpg",
