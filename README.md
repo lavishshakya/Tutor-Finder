@@ -1,4 +1,7 @@
-# 🎓 Tutor Finder
+<h1>
+  <img src="https://github.com/user-attachments/assets/8fd6cd41-7cc4-4aaf-96ce-de96c5a8a72e" width="40" align="center" />
+  Tutor Finder
+</h1>
 
 <div align="center">
 
