@@ -1,7 +1,4 @@
-<h1>
-  <img src="https://github.com/user-attachments/assets/8fd6cd41-7cc4-4aaf-96ce-de96c5a8a72e" width="40" align="center" />
-  Tutor Finder
-</h1>
+# 🎓 Tutor Finder
 
 <div align="center">
 
@@ -10,7 +7,7 @@
 
 **Connect with Expert Tutors. Transform Your Learning Journey.**
 
-[Tutor Finder](https://tutor-finder-kvwb.vercel.app)
+[Live Demo](https://tutor-finder-kvwb.vercel.app)
 </div>
 
 ---
@@ -164,13 +161,13 @@ Experience Tutor Finder in action: **[Visit Website](https://tutor-finder-kvwb.v
 </details>
 
 ## 📱 Screenshots
+
 <div style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;">
 <img width="45%" alt="Home Page" src="https://github.com/user-attachments/assets/14ea4bd9-35e4-4f29-a0d8-1c5e4762b457" />
 <img width="45%" alt="Tutor Search" src="https://github.com/user-attachments/assets/88038077-889b-4c2e-a1c1-11c2397ddce2" />
 <img width="45%" alt="Chat Interface" src="https://github.com/user-attachments/assets/3359fe71-d851-469f-aa63-e4189c7415d0" />
 <img width="45%" alt="Dashboard" src="https://github.com/user-attachments/assets/6042c558-373f-4229-ac8b-157319f4576f" />
 </div>
-
 
 
 ---

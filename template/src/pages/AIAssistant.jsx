@@ -16,20 +16,46 @@ import { api, API_BASE_URL } from "../services/api";
 
 const AIAssistant = () => {
   const { currentUser } = useAuth();
-  const [messages, setMessages] = useState([
-    {
-      type: "ai",
-      content:
-        "👋 Hi! I'm your AI Learning Assistant powered by Google Gemini.\n\n💡 **How I help you:**\n• For math/problem-solving questions → I give strategic hints\n• For facts/definitions → I give direct answers\n• For platform help → I guide you through features\n\nAsk me anything and I'll respond in the most helpful way!",
-      timestamp: new Date(),
-      id: 0,
-    },
-  ]);
+  const STORAGE_KEY = "ai_assistant_messages";
+  const initialWelcomeMessage = {
+    type: "ai",
+    content:
+      "👋 Hi! I'm your AI Learning Assistant powered by Google Gemini.\n\n💡 **How I help you:**\n• For math/problem-solving questions → I give strategic hints\n• For facts/definitions → I give direct answers\n• For platform help → I guide you through features\n\nAsk me anything and I'll respond in the most helpful way!",
+    timestamp: new Date(),
+    id: 0,
+  };
+
+  // Load messages from localStorage or initialize with welcome message
+  const [messages, setMessages] = useState(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      return stored ? JSON.parse(stored) : [initialWelcomeMessage];
+    } catch {
+      return [initialWelcomeMessage];
+    }
+  });
+
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
-  const [messageIdCounter, setMessageIdCounter] = useState(1);
+  const [messageIdCounter, setMessageIdCounter] = useState(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const parsedMessages = JSON.parse(stored);
+        return Math.max(...parsedMessages.map((m) => m.id), 0) + 1;
+      }
+      return 1;
+    } catch {
+      return 1;
+    }
+  });
   const messagesEndRef = useRef(null);
+
+  // Save messages to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+  }, [messages]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -39,27 +65,28 @@ const AIAssistant = () => {
     scrollToBottom();
   }, [messages]);
 
-  // AI hint generator - calls backend API which uses Gemini
-  const generateHint = async (question) => {
+  // AI chat with context - calls backend API with conversation history
+  const generateResponse = async (question, conversationHistory) => {
     setIsLoading(true);
 
     try {
-      const response = await api.post(`/api/ai-assistant/hint`, {
-        question: question,
+      const response = await api.post(`/api/ai-assistant/chat`, {
+        message: question,
+        conversationHistory: conversationHistory,
       });
 
       setIsLoading(false);
 
       if (response.data.success) {
-        return response.data.hint;
+        return response.data.response;
       } else {
-        throw new Error(response.data.error || "Failed to generate hint");
+        throw new Error(response.data.error || "Failed to generate response");
       }
     } catch (error) {
-      console.error("Error getting hint from backend:", error);
+      console.error("Error getting response from backend:", error);
       setIsLoading(false);
 
-      // Fallback hint if API fails
+      // Fallback response if API fails
       return "💡 Sorry, I'm having trouble connecting right now. Here's a general tip: Break down the problem into smaller steps. What do you already know? What are you trying to find? Try solving a simpler version first!";
     }
   };
@@ -79,16 +106,25 @@ const AIAssistant = () => {
 
     setMessages((prev) => [...prev, userMessage]);
     setInputMessage("");
-    setMessageIdCounter((prev) => prev + 1);
+    const newCounterId = messageIdCounter + 1;
+    setMessageIdCounter(newCounterId);
 
-    // Generate AI hint response
-    const hint = await generateHint(inputMessage);
+    // Prepare conversation history (exclude the welcome message and current message being processed)
+    const conversationHistory = messages
+      .filter((msg) => msg.id !== 0) // Exclude welcome message
+      .map((msg) => ({
+        role: msg.type === "user" ? "user" : "assistant",
+        content: msg.content,
+      }));
+
+    // Generate AI response with context
+    const response = await generateResponse(inputMessage, conversationHistory);
 
     const aiMessage = {
       type: "ai",
-      content: hint,
+      content: response,
       timestamp: new Date(),
-      id: messageIdCounter + 1,
+      id: newCounterId,
     };
 
     setMessages((prev) => [...prev, aiMessage]);
@@ -147,6 +183,20 @@ const AIAssistant = () => {
     input?.focus();
   };
 
+  const handleExampleClick = (question) => {
+    setInputMessage(question);
+    const input = document.querySelector('input[placeholder="Ask a question..."]');
+    input?.focus();
+  };
+
+  const clearChatHistory = () => {
+    if (window.confirm("Are you sure you want to clear all chat history? This cannot be undone.")) {
+      localStorage.removeItem(STORAGE_KEY);
+      setMessages([initialWelcomeMessage]);
+      setMessageIdCounter(1);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 pt-16 pb-20 md:pt-20 md:pb-8">
       <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-4 md:py-8">
@@ -163,6 +213,14 @@ const AIAssistant = () => {
           <p className="text-gray-600 text-sm sm:text-base md:text-lg px-4">
             Get hints and guidance to solve problems
           </p>
+          {messages.length > 1 && (
+            <button
+              onClick={clearChatHistory}
+              className="mt-3 sm:mt-4 text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 transition-colors border border-red-200 active:scale-95"
+            >
+              Clear History
+            </button>
+          )}
         </div>
 
         {/* Info Banner - Collapsible on mobile */}
