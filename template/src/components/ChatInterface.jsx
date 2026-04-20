@@ -430,19 +430,6 @@ const ChatInterface = ({
                   {activeTutor.subjects?.slice(0, 2).join(", ")}
                   {activeTutor.subjects?.length > 2 ? "..." : ""}
                 </p>
-                {/* Real-time connection indicator */}
-                <div className="flex items-center mt-1">
-                  <span
-                    className={`inline-block w-2 h-2 rounded-full mr-1.5 ${
-                      isSocketConnected
-                        ? "bg-green-400 animate-pulse shadow-lg shadow-green-400/50"
-                        : "bg-yellow-400"
-                    }`}
-                  ></span>
-                  <span className="text-xs text-white font-medium">
-                    {isSocketConnected ? "Live" : "Reconnecting..."}
-                  </span>
-                </div>
 
               </div>
             </>
