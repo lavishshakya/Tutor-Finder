@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { FaChevronRight, FaPaperPlane, FaTimes } from "react-icons/fa";
 import ActivateProfileBanner from "../components/ActivateProfileBanner";
 import { getApiUrl } from "../services/api";
+import { getSocket } from "../services/socket";
 
 
 const TutorDashboard = () => {
@@ -34,7 +35,58 @@ const TutorDashboard = () => {
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [replyText, setReplyText] = useState("");
   const [sendingReply, setSendingReply] = useState(false);
-  const [isPollingMessages, setIsPollingMessages] = useState(false);
+  const [isSocketConnected, setIsSocketConnected] = useState(false);
+  const socketRef = useRef(null);
+  const notificationSoundRef = useRef(null);
+
+  const currentUserId = currentUser?.id || currentUser?._id;
+
+  const mapConversation = useCallback((conv) => ({
+    id: conv.id,
+    parentId: conv.otherUser.id,
+    parentName: conv.otherUser.name,
+    parentAvatar:
+      conv.otherUser.profilePicture ||
+      "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Crect fill='%23e5e7eb' width='60' height='60'/%3E%3Ctext fill='%239ca3af' font-family='sans-serif' font-size='20' dy='10.5' font-weight='bold' x='50%25' y='50%25' text-anchor='middle'%3EU%3C/text%3E%3C/svg%3E",
+    unreadCount: conv.unreadCount,
+    lastMessage: conv.lastMessage,
+    timestamp: new Date(conv.timestamp),
+    messages: [],
+  }), []);
+
+  const mapMessage = useCallback((msg) => ({
+    id: msg._id || msg.id,
+    senderId: msg.sender,
+    recipientId: msg.recipient,
+    text: msg.text,
+    timestamp: new Date(msg.createdAt || msg.timestamp),
+    read: msg.read,
+  }), []);
+
+  const refreshConversations = useCallback(async () => {
+    if (!currentUser) return;
+
+    try {
+      setLoadingMessages(true);
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const response = await axios.get(getApiUrl("/api/messages/conversations"), {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.data.success) {
+        const conversations = response.data.data.map(mapConversation);
+        setMessages(conversations);
+      }
+    } catch (error) {
+      // Keep UI stable if conversation refresh fails.
+    } finally {
+      setLoadingMessages(false);
+    }
+  }, [currentUser, mapConversation]);
 
   useEffect(() => {
     const fetchTutorProfile = async () => {
@@ -128,176 +180,172 @@ const TutorDashboard = () => {
     fetchTutorProfile();
   }, [currentUser, logout]);
 
-  // Fetch messages
   useEffect(() => {
-    const fetchMessages = async () => {
-      if (!currentUser) return;
+    refreshConversations();
+  }, [refreshConversations]);
 
-      try {
-        setLoadingMessages(true);
-        const token = localStorage.getItem("token");
+  useEffect(() => {
+    notificationSoundRef.current = new Audio(
+      "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYHGGS56+ibUBELTKXh8LVmHgU4jtXyzn0vBSV+zO/bljwGE1ap5+6jWRYLRpzd8L1xJAUqf8rx2Yo4BxdjuOnnm1ERC0mi4O+0Zh4FN4vT8M59LgUlfcvv25Y8BhJWqOXvo1sYC0Sa3O+8cSUFKn7K8diKOQcXY7jn5ptQEQtJod/us2YdBTaK0u/OfiUEJHzJ79yWOwYSVqbk7qNaGAtEmd3wxXInBSl9yO/YijkHFmK45+SbUBELSKDd77JlHQU1ic/vzn4mBCR8yO/blTsGElal5O6jWhgMRJjb8MV0KQUpfcjv2Io5BxZiuOXjm1ARDEef3O+yZRwFNYjO7s59JgQkfMnv25U7BhJWpOTuo1oYDESY2/DFdCkFKX7I79uLOgYWYrjk45pPEAxHnt3vs2YdBTaJzu7OfSYEJH3J7t2WPAYSVqPj7qJaGAxEmNnwxnUqBSh9x+7aijkHFmK54uOaTxAMR53b77NmHgU2ic7uzn0mBCR9ye3dlTsGElaj4+6iWhgMRJfY8MZ1KgUofcfv2Yk6BhZjueLjmk8QDEec2+6zZR4FNYnN7s19JgQkfsnt3JY7BhNWoePuoloYDUSW2PCfCjUGE1ah4u6jWhgMRJfY77xxJAUqfsfu2Yo5BxVjuOLim04QC0eb2++0ZR0FNYnN7sx+JgQlf8rt3JU7BhNVoePuolsYDUOW1+/GdSkGKH7I7tmJOgYVY7nh45tQEAtGmtvvsWUeBTSIze/MfiYFJH/K7tyVOwYTVaHi7qNbGA1DltfvxnUpBih+x+/ZiToGFWO54eObUBALRpra77BlHgUziM3uzH4mBSR/yu7ckzwGE1Wg4u6jWxgNQ5bX78Z1KgUofsfu2Io6BhVjuOPjm1AQC0aa2u+wZR4FMojN7sx9JgUkf8ru3JM8BhNVoOLuo1sYDUOW1+/GdSoFKH/H7tiKOgYVY7jj45tQEAtFmtrvsGUeBTKIze7MfSYFJH/K7tyTPAYTVaDi7qNbGQxDltfvxnUpBSh/x+7Yiz"
+    );
+  }, []);
 
-        if (!token) {
-          setLoadingMessages(false);
-          return;
-        }
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!currentUser || !token) {
+      return;
+    }
 
-        const response = await axios.get(
-          getApiUrl("/api/messages/conversations"),
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+    const socket = getSocket(token);
+    if (!socket) {
+      return;
+    }
 
-        if (response.data.success) {
-          // Transform the data structure to match our UI needs
-          const conversations = response.data.data.map((conv) => ({
-            id: conv.id,
-            parentId: conv.otherUser.id,
-            parentName: conv.otherUser.name,
-            parentAvatar:
-              conv.otherUser.profilePicture ||
-              "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Crect fill='%23e5e7eb' width='60' height='60'/%3E%3Ctext fill='%239ca3af' font-family='sans-serif' font-size='20' dy='10.5' font-weight='bold' x='50%25' y='50%25' text-anchor='middle'%3EU%3C/text%3E%3C/svg%3E",
-            unreadCount: conv.unreadCount,
-            lastMessage: conv.lastMessage,
-            timestamp: new Date(conv.timestamp),
-            messages: [], // Messages will be loaded when conversation is selected
-          }));
+    socketRef.current = socket;
 
-          // Filter only for conversations with parents (if needed)
-          const parentConversations = conversations.filter(
-            (conv) => conv.otherUser?.role === "parent"
-          );
+    const handleConnect = () => setIsSocketConnected(true);
+    const handleDisconnect = () => setIsSocketConnected(false);
 
-          setMessages(conversations);
-        }
-      } catch (error) {
-        // Error fetching conversations
-
-      } finally {
-        setLoadingMessages(false);
+    const handleMessage = ({ message: incomingMessage, conversation }) => {
+      if (!incomingMessage || !conversation) {
+        return;
       }
-    };
 
-    fetchMessages();
-  }, [currentUser]);
+      const mappedIncomingMessage = mapMessage(incomingMessage);
+      const isActiveOpen = selectedConversation?.id === incomingMessage.conversationId;
+      const isIncomingForCurrentUser =
+        incomingMessage.recipient === currentUserId &&
+        incomingMessage.sender !== currentUserId;
 
-  // Real-time polling for conversation list updates
-  useEffect(() => {
-    if (!currentUser || loadingMessages) return;
-
-    const pollConversations = async () => {
-      if (isPollingMessages) return; // Prevent overlapping polls
-
-      try {
-        setIsPollingMessages(true);
-        const token = localStorage.getItem("token");
-        if (!token) return;
-
-        const response = await axios.get(
-          getApiUrl("/api/messages/conversations"),
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (response.data.success) {
-          const conversations = response.data.data.map((conv) => ({
-            id: conv.id,
-            parentId: conv.otherUser.id,
-            parentName: conv.otherUser.name,
-            parentAvatar:
-              conv.otherUser.profilePicture ||
-              "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Crect fill='%23e5e7eb' width='60' height='60'/%3E%3Ctext fill='%239ca3af' font-family='sans-serif' font-size='20' dy='10.5' font-weight='bold' x='50%25' y='50%25' text-anchor='middle'%3EU%3C/text%3E%3C/svg%3E",
-            unreadCount: conv.unreadCount,
-            lastMessage: conv.lastMessage,
-            timestamp: new Date(conv.timestamp),
-            messages: [],
-          }));
-
-          // Only update if there are changes
-          if (JSON.stringify(conversations) !== JSON.stringify(messages)) {
-            setMessages(conversations);
-          }
-        }
-      } catch (error) {
-        // Silent polling error
-      } finally {
-        setIsPollingMessages(false);
-      }
-    };
-
-    // Poll every 3 seconds
-    const intervalId = setInterval(pollConversations, 3000);
-
-    return () => clearInterval(intervalId);
-  }, [currentUser, loadingMessages, messages, isPollingMessages]);
-
-  // Real-time polling for active conversation messages
-  useEffect(() => {
-    if (!selectedConversation || !currentUser) return;
-
-    const pollConversationMessages = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) return;
-
-        const response = await axios.get(
-          getApiUrl(`/api/messages/conversations/${selectedConversation.id}`),
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (response.data.success) {
-          const loadedMessages = response.data.data.map((msg) => ({
-            id: msg._id,
-            senderId: msg.sender,
-            recipientId: msg.recipient,
-            text: msg.text,
-            timestamp: new Date(msg.createdAt),
-            read: msg.read,
-          }));
-
-          // Only update if message count changed (new messages)
-          if (loadedMessages.length > selectedConversation.messages.length) {
-            setSelectedConversation((prev) => ({
-              ...prev,
-              messages: loadedMessages,
-              lastMessage: loadedMessages[loadedMessages.length - 1]?.text,
-              timestamp: loadedMessages[loadedMessages.length - 1]?.timestamp,
-            }));
-
-            // Play notification sound for new messages from other user
-            const hasNewFromOther = loadedMessages
-              .slice(selectedConversation.messages.length)
-              .some((msg) => msg.senderId !== currentUser.id);
-
-            if (hasNewFromOther) {
-              // Simple beep notification
-              const audio = new Audio(
-                "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYHGGS56+ibUBELTKXh8LVmHgU4jtXyzn0vBSV+zO/bljwGE1ap5+6jWRYLRpzd8L1xJAUqf8rx2Yo4BxdjuOnnm1ERC0mi4O+0Zh4FN4vT8M59LgUlfcvv25Y8BhJWqOXvo1sYC0Sa3O+8cSUFKn7K8diKOQcXY7jn5ptQEQtJod/us2YdBTaK0u/OfiUEJHzJ79yWOwYSVqbk7qNaGAtEmd3wxXInBSl9yO/YijkHFmK45+SbUBELSKDd77JlHQU1ic/vzn4mBCR8yO/blTsGElal5O6jWhgMRJjb8MV0KQUpfcjv2Io5BxZiuOXjm1ARDEef3O+yZRwFNYjO7s59JgQkfMnv25U7BhJWpOTuo1oYDESY2/DFdCkFKX7I79uLOgYWYrjk45pPEAxHnt3vs2YdBTaJzu7OfSYEJH3J7t2WPAYSVqPj7qJaGAxEmNnwxnUqBSh9x+7aijkHFmK54uOaTxAMR53b77NmHgU2ic7uzn0mBCR9ye3dlTsGElaj4+6iWhgMRJfY8MZ1KgUofcfv2Yk6BhZjueLjmk8QDEec2+6zZR4FNYnN7s19JgQkfsnt3JY7BhNWoePuoloYDUSW2PCfCjUGE1ah4u6jWhgMRJfY77xxJAUqfsfu2Yo5BxVjuOLim04QC0eb2++0ZR0FNYnN7sx+JgQlf8rt3JU7BhNVoePuolsYDUOW1+/GdSkGKH7I7tmJOgYVY7nh45tQEAtGmtvvsWUeBTSIze/MfiYFJH/K7tyVOwYTVaHi7qNbGA1DltfvxnUpBih+x+/ZiToGFWO54eObUBALRpra77BlHgUziM3uzH4mBSR/yu7ckzwGE1Wg4u6jWxgNQ5bX78Z1KgUofsfu2Io6BhVjuOPjm1AQC0aa2u+wZR4FMojN7sx9JgUkf8ru3JM8BhNVoOLuo1sYDUOW1+/GdSoFKH/H7tiKOgYVY7jj45tQEAtFmtrvsGUeBTKIze7MfSYFJH/K7tyTPAYTVaDi7qNbGQxDltfvxnUpBSh/x+7Yiz"
-              );
-              audio.play().catch(() => {});
+      if (isActiveOpen && isIncomingForCurrentUser) {
+        axios
+          .put(
+            getApiUrl(`/api/messages/conversations/${incomingMessage.conversationId}/read`),
+            null,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
             }
-          }
+          )
+          .catch(() => {});
+      }
+
+      setMessages((prevMessages) => {
+        const existingIndex = prevMessages.findIndex(
+          (convo) => convo.id === conversation.id
+        );
+
+        if (existingIndex === -1) {
+          const newConversation = mapConversation(conversation);
+          return [newConversation, ...prevMessages];
         }
-      } catch (error) {
-        // Silent message polling error
+
+        const updated = [...prevMessages];
+        updated[existingIndex] = {
+          ...updated[existingIndex],
+          unreadCount: isActiveOpen ? 0 : conversation.unreadCount,
+          lastMessage: conversation.lastMessage,
+          timestamp: new Date(conversation.timestamp),
+        };
+
+        const [activeConversation] = updated.splice(existingIndex, 1);
+        return [activeConversation, ...updated];
+      });
+
+      setSelectedConversation((prev) => {
+        if (!prev || prev.id !== incomingMessage.conversationId) {
+          return prev;
+        }
+
+        const alreadyExists = prev.messages.some(
+          (msg) => msg.id === mappedIncomingMessage.id
+        );
+        if (alreadyExists) {
+          return prev;
+        }
+
+        const shouldPlaySound = mappedIncomingMessage.senderId !== currentUserId;
+        if (shouldPlaySound && notificationSoundRef.current) {
+          notificationSoundRef.current.play().catch(() => {});
+        }
+
+        return {
+          ...prev,
+          messages: [...prev.messages, mappedIncomingMessage],
+          lastMessage: mappedIncomingMessage.text,
+          timestamp: mappedIncomingMessage.timestamp,
+          unreadCount: 0,
+        };
+      });
+    };
+
+    const handleMessagesRead = ({ conversationId, readerId }) => {
+      if (readerId === currentUserId) {
+        return;
+      }
+
+      if (selectedConversation?.id === conversationId) {
+        setSelectedConversation((prev) => {
+          if (!prev || prev.id !== conversationId) {
+            return prev;
+          }
+          return {
+            ...prev,
+            messages: prev.messages.map((msg) =>
+              msg.senderId === currentUserId ? { ...msg, read: true } : msg
+            ),
+          };
+        });
       }
     };
 
-    // Poll every 3 seconds for messages in active conversation
-    const messageIntervalId = setInterval(pollConversationMessages, 3000);
+    const handleConversationCleared = ({ conversationId }) => {
+      setMessages((prevMessages) =>
+        prevMessages.filter((convo) => convo.id !== conversationId)
+      );
 
-    return () => clearInterval(messageIntervalId);
-  }, [selectedConversation, currentUser]);
+      if (selectedConversation?.id === conversationId) {
+        setSelectedConversation(null);
+      }
+    };
+
+    socket.on("connect", handleConnect);
+    socket.on("disconnect", handleDisconnect);
+    socket.on("message:new", handleMessage);
+    socket.on("messages:read", handleMessagesRead);
+    socket.on("conversation:cleared", handleConversationCleared);
+
+    if (socket.connected) {
+      setIsSocketConnected(true);
+    }
+
+    return () => {
+      socket.off("connect", handleConnect);
+      socket.off("disconnect", handleDisconnect);
+      socket.off("message:new", handleMessage);
+      socket.off("messages:read", handleMessagesRead);
+      socket.off("conversation:cleared", handleConversationCleared);
+    };
+  }, [
+    currentUser,
+    currentUserId,
+    mapConversation,
+    mapMessage,
+    selectedConversation,
+  ]);
+
+  useEffect(() => {
+    const socket = socketRef.current;
+    if (!socket || !selectedConversation?.id) {
+      return;
+    }
+
+    socket.emit("join:conversation", selectedConversation.id);
+    return () => {
+      socket.emit("leave:conversation", selectedConversation.id);
+    };
+  }, [selectedConversation?.id]);
 
   // Handle sending a reply
   const handleSendReply = async () => {
@@ -305,6 +353,7 @@ const TutorDashboard = () => {
 
     // Get the recipient ID from the conversation
     const recipientId = selectedConversation.parentId;
+    let tempId = null;
 
     try {
       setSendingReply(true);
@@ -312,10 +361,10 @@ const TutorDashboard = () => {
 
 
       // Optimistically add the message to UI
-      const tempId = `temp_${Date.now()}`;
+      tempId = `temp_${Date.now()}`;
       const tempMessage = {
         id: tempId,
-        senderId: currentUser.id,
+        senderId: currentUserId,
         text: replyText,
         timestamp: new Date(),
         read: false,
@@ -362,9 +411,9 @@ const TutorDashboard = () => {
         // Update in the selected conversation
         setSelectedConversation((prev) => ({
           ...prev,
-          messages: prev.messages.map((msg) =>
-            msg.id === tempId ? confirmedMessage : msg
-          ),
+          messages: prev.messages
+            .filter((msg) => msg.id !== confirmedMessage.id || msg.id === tempId)
+            .map((msg) => (msg.id === tempId ? confirmedMessage : msg)),
           lastMessage: confirmedMessage.text,
           timestamp: confirmedMessage.timestamp,
         }));
@@ -390,7 +439,7 @@ const TutorDashboard = () => {
       setSelectedConversation((prev) => ({
         ...prev,
         messages: prev.messages.map((msg) =>
-          msg.id === `temp_${Date.now()}` ? { ...msg, failed: true } : msg
+          msg.id === tempId ? { ...msg, failed: true, pending: false } : msg
         ),
       }));
 
@@ -1677,9 +1726,15 @@ const TutorDashboard = () => {
                             </p>
                             {/* Real-time connection indicator */}
                             <div className="flex items-center mt-1">
-                              <span className="inline-block w-2 h-2 rounded-full mr-1.5 bg-green-400 animate-pulse shadow-lg shadow-green-400/50"></span>
+                              <span
+                                className={`inline-block w-2 h-2 rounded-full mr-1.5 ${
+                                  isSocketConnected
+                                    ? "bg-green-400 animate-pulse shadow-lg shadow-green-400/50"
+                                    : "bg-yellow-400"
+                                }`}
+                              ></span>
                               <span className="text-xs text-gray-600 font-medium">
-                                Live
+                                {isSocketConnected ? "Live" : "Reconnecting..."}
                               </span>
                             </div>
                           </div>

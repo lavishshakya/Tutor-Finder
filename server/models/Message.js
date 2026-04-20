@@ -34,6 +34,9 @@ const MessageSchema = new mongoose.Schema({
 MessageSchema.index({ sender: 1, recipient: 1 });
 // Create an index on conversationId for quick conversation lookups
 MessageSchema.index({ conversationId: 1 });
+// Optimize unread counter and latest-message fetch patterns.
+MessageSchema.index({ conversationId: 1, createdAt: -1 });
+MessageSchema.index({ recipient: 1, read: 1, conversationId: 1 });
 
 // Generate conversation ID when saving new message
 MessageSchema.pre('save', function(next) {

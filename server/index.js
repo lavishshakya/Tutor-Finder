@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import session from "express-session";
 import passport from "passport";
+import http from "http";
 import connectDB from "./config/db.js";
 import passportConfig from "./config/passport.js";
 import authRoutes from "./routes/authRoutes.js";
@@ -14,6 +15,7 @@ import favoritesRoutes from "./routes/favoritesRoutes.js"; // Import favoritesRo
 import aiAssistantRoutes from "./routes/aiAssistantRoutes.js"; // Import AI assistant routes
 import otpRoutes from "./routes/otpRoutes.js"; // Import OTP routes
 import razorpayRoutes from "./routes/razorpayRoutes.js"; // Import Razorpay routes
+import { setupSocketServer } from "./socket.js";
 
 // Load environment variables
 dotenv.config();
@@ -75,6 +77,9 @@ const allowedOrigins = [
   "https://tutor-finder-kvwb-5s0pqh1im-lavishshakyas-projects.vercel.app", // Preview deployment
   process.env.FRONTEND_URL, // Additional frontend URL from env
 ].filter(Boolean); // Remove undefined values
+
+// Make io available in controllers even before startup wiring.
+app.set("io", null);
 
 app.use(
   cors({
@@ -141,9 +146,16 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5001;
 
-// For local development
-if (process.env.NODE_ENV !== "production") {
-  app.listen(PORT, "0.0.0.0", () => {
+const shouldRunSocketServer =
+  process.env.NODE_ENV !== "production" ||
+  process.env.ENABLE_SOCKET_SERVER === "true";
+
+if (shouldRunSocketServer) {
+  const server = http.createServer(app);
+  const io = setupSocketServer(server, allowedOrigins);
+  app.set("io", io);
+
+  server.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on port ${PORT}`);
   });
 }

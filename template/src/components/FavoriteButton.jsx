@@ -10,6 +10,12 @@ const FavoriteButton = ({ tutorId }) => {
   const [loading, setLoading] = useState(false);
   const { currentUser } = useAuth();
 
+  const handleUnauthorized = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    window.location.href = "/login";
+  };
+
   useEffect(() => {
     const checkIfFavorite = async () => {
       if (!currentUser || !tutorId) return;
@@ -44,9 +50,18 @@ const FavoriteButton = ({ tutorId }) => {
       return;
     }
 
+    if (!tutorId) {
+      return;
+    }
+
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
+
+      if (!token) {
+        handleUnauthorized();
+        return;
+      }
 
       if (isFavorite) {
         // Remove from favorites
@@ -73,6 +88,10 @@ const FavoriteButton = ({ tutorId }) => {
       }
     } catch (error) {
       console.error("Error toggling favorite:", error);
+
+      if (error.response?.status === 401) {
+        handleUnauthorized();
+      }
 
     } finally {
       setLoading(false);

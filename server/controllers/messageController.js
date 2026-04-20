@@ -2,6 +2,84 @@ import Message from '../models/Message.js';
 import User from '../models/User.js';
 import mongoose from 'mongoose';
 
+const formatConversationSummary = ({
+  conversationId,
+  otherUser,
+  unreadCount,
+  lastMessage,
+  timestamp,
+}) => ({
+  id: conversationId,
+  otherUser: {
+    id: otherUser._id,
+    name: otherUser.name,
+    email: otherUser.email,
+    profilePicture: otherUser.profilePicture,
+    role: otherUser.role,
+  },
+  unreadCount,
+  lastMessage,
+  timestamp,
+});
+
+const emitMessageEvents = async ({ io, newMessage, sender, recipient }) => {
+  if (!io) {
+    return;
+  }
+
+  if (!sender || !recipient) {
+    return;
+  }
+
+  const recipientUnreadCount = await Message.countDocuments({
+    conversationId: newMessage.conversationId,
+    recipient: recipient._id,
+    read: false,
+  });
+
+  const senderSummary = formatConversationSummary({
+    conversationId: newMessage.conversationId,
+    otherUser: recipient,
+    unreadCount: 0,
+    lastMessage: newMessage.text,
+    timestamp: newMessage.createdAt,
+  });
+
+  const recipientSummary = formatConversationSummary({
+    conversationId: newMessage.conversationId,
+    otherUser: sender,
+    unreadCount: recipientUnreadCount,
+    lastMessage: newMessage.text,
+    timestamp: newMessage.createdAt,
+  });
+
+  const messagePayload = {
+    id: newMessage._id,
+    sender: newMessage.sender,
+    recipient: newMessage.recipient,
+    conversationId: newMessage.conversationId,
+    text: newMessage.text,
+    read: newMessage.read,
+    createdAt: newMessage.createdAt,
+  };
+
+  io.to(`user:${sender._id.toString()}`).emit('message:new', {
+    message: messagePayload,
+    conversation: senderSummary,
+  });
+
+  io.to(`user:${recipient._id.toString()}`).emit('message:new', {
+    message: messagePayload,
+    conversation: recipientSummary,
+  });
+
+  io.to(`conversation:${newMessage.conversationId}`).emit('conversation:updated', {
+    conversationId: newMessage.conversationId,
+    lastMessage: newMessage.text,
+    timestamp: newMessage.createdAt,
+  });
+};
+
 // Get all conversations for the current user
 export const getConversations = async (req, res) => {
   try {
@@ -92,10 +170,22 @@ export const getConversationMessages = async (req, res) => {
       .sort({ createdAt: 1 });
     
     // Mark messages as read if current user is the recipient
-    await Message.updateMany(
+    const readResult = await Message.updateMany(
       { conversationId, recipient: userId, read: false },
       { read: true }
     );
+
+    if (readResult.modifiedCount > 0) {
+      const io = req.app.get('io');
+      if (io) {
+        const otherUserId = participants[0] === userId.toString() ? participants[1] : participants[0];
+        io.to(`user:${otherUserId}`).emit('messages:read', {
+          conversationId,
+          readerId: userId.toString(),
+          readCount: readResult.modifiedCount,
+        });
+      }
+    }
     
     res.status(200).json({
       success: true,
@@ -147,6 +237,16 @@ export const sendMessage = async (req, res) => {
     });
     
     await newMessage.save();
+
+    const io = req.app.get('io');
+    const sender = await User.findById(senderId).select('name profilePicture email role');
+    const recipientSummaryUser = await User.findById(recipientId).select('name profilePicture email role');
+    await emitMessageEvents({
+      io,
+      newMessage,
+      sender,
+      recipient: recipientSummaryUser,
+    });
     
     res.status(201).json({
       success: true,
@@ -173,6 +273,19 @@ export const markAsRead = async (req, res) => {
       { conversationId, recipient: userId, read: false },
       { read: true }
     );
+
+    if (result.modifiedCount > 0) {
+      const io = req.app.get('io');
+      if (io) {
+        const participants = conversationId.split('_');
+        const otherUserId = participants[0] === userId.toString() ? participants[1] : participants[0];
+        io.to(`user:${otherUserId}`).emit('messages:read', {
+          conversationId,
+          readerId: userId.toString(),
+          readCount: result.modifiedCount,
+        });
+      }
+    }
     
     res.status(200).json({
       success: true,
@@ -209,6 +322,20 @@ export const clearConversation = async (req, res) => {
     
     // Delete all messages in the conversation
     const result = await Message.deleteMany({ conversationId });
+
+    const io = req.app.get('io');
+    if (io) {
+      const participantsToNotify = conversationId
+        .split('_')
+        .filter((id) => mongoose.Types.ObjectId.isValid(id));
+
+      participantsToNotify.forEach((participantId) => {
+        io.to(`user:${participantId}`).emit('conversation:cleared', {
+          conversationId,
+          clearedBy: userId.toString(),
+        });
+      });
+    }
     
     res.status(200).json({
       success: true,

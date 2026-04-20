@@ -3,6 +3,7 @@ import { FaPaperPlane, FaTimes, FaTrash } from "react-icons/fa";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { getApiUrl } from "../services/api";
+import { getSocket } from "../services/socket";
 
 const ChatInterface = ({
   activeTutor,
@@ -19,12 +20,11 @@ const ChatInterface = ({
   const [error, setError] = useState(null);
   const [clearingChat, setClearingChat] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
-  const [isPolling, setIsPolling] = useState(false);
+  const [isSocketConnected, setIsSocketConnected] = useState(false);
 
   const messagesEndRef = useRef(null);
   const chatContainerRef = useRef(null);
-  const pollingIntervalRef = useRef(null);
-  const lastMessageIdRef = useRef(null);
+  const socketRef = useRef(null);
   const notificationSoundRef = useRef(null);
 
   // Initialize notification sound
@@ -87,12 +87,6 @@ const ChatInterface = ({
 
           setMessages(loadedMessages);
           setConversationId(potentialConversationId);
-
-          // Update the last message ID for polling
-          if (loadedMessages.length > 0) {
-            lastMessageIdRef.current =
-              loadedMessages[loadedMessages.length - 1].id;
-          }
         }
       } catch (error) {
         setError("Failed to load messages. Please try again.");
@@ -113,89 +107,119 @@ const ChatInterface = ({
     fetchMessages();
   }, [currentUser, activeTutor, initialConversationId]);
 
-  // Real-time polling for new messages
   useEffect(() => {
-    if (!currentUser || !activeTutor || !conversationId || loading) {
+    const token = localStorage.getItem("token");
+    if (!currentUser || !token) {
       return;
     }
 
-    const pollForNewMessages = async () => {
-      if (isPolling) return; // Prevent overlapping polls
+    const socket = getSocket(token);
+    if (!socket) {
+      return;
+    }
 
-      try {
-        setIsPolling(true);
+    socketRef.current = socket;
 
-        const token = localStorage.getItem("token");
-        if (!token) return;
+    const currentUserId = currentUser?.id || currentUser?._id;
 
-        const response = await axios.get(
-          getApiUrl(`/api/messages/conversations/${conversationId}`),
-          {
+    const handleConnect = () => setIsSocketConnected(true);
+    const handleDisconnect = () => setIsSocketConnected(false);
+
+    const handleIncomingMessage = ({ message: incomingMessage }) => {
+      if (!incomingMessage || !incomingMessage.conversationId) {
+        return;
+      }
+
+      const isActiveConversation = incomingMessage.conversationId === conversationId;
+      const isIncomingForCurrentUser =
+        incomingMessage.recipient === currentUserId &&
+        incomingMessage.sender !== currentUserId;
+
+      if (isActiveConversation && isIncomingForCurrentUser) {
+        axios
+          .put(getApiUrl(`/api/messages/conversations/${conversationId}/read`), null, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          }
-        );
+          })
+          .catch(() => {});
+      }
 
-        if (response.data.success) {
-          const loadedMessages = response.data.data.map((msg) => ({
-            id: msg._id,
-            senderId: msg.sender,
-            text: msg.text,
-            timestamp: new Date(msg.createdAt),
-            read: msg.read,
-          }));
-
-          // Only update if there are new messages
-          if (loadedMessages.length > messages.length) {
-            const newMessages = loadedMessages.slice(messages.length);
-
-            // Check if new messages are actually new (not from current user sending)
-            const hasNewMessagesFromOther = newMessages.some(
-              (msg) => msg.senderId !== currentUser.id
-            );
-
-            if (
-              hasNewMessagesFromOther ||
-              loadedMessages.length !== messages.length
-            ) {
-              setMessages(loadedMessages);
-              lastMessageIdRef.current =
-                loadedMessages[loadedMessages.length - 1]?.id;
-
-              // Play notification sound for new messages from other user
-              if (hasNewMessagesFromOther && notificationSoundRef.current) {
-                notificationSoundRef.current.play().catch(() => {
-                  // Silently fail if sound can't play (browser restrictions)
-                });
-              }
-            }
-          }
+      setMessages((prev) => {
+        const alreadyExists = prev.some((msg) => msg.id === incomingMessage.id);
+        if (alreadyExists) {
+          return prev;
         }
-      } catch (error) {
-        // Silently fail for polling errors to avoid annoying the user
-      } finally {
-        setIsPolling(false);
-      }
+
+        const mappedMessage = {
+          id: incomingMessage.id,
+          senderId: incomingMessage.sender,
+          text: incomingMessage.text,
+          timestamp: new Date(incomingMessage.createdAt),
+          read: incomingMessage.read,
+        };
+
+        const isOtherUserMessage =
+          mappedMessage.senderId !== currentUserId &&
+          incomingMessage.conversationId === conversationId;
+
+        if (isOtherUserMessage && notificationSoundRef.current) {
+          notificationSoundRef.current.play().catch(() => {});
+        }
+
+        if (incomingMessage.conversationId !== conversationId) {
+          return prev;
+        }
+
+        return [...prev, mappedMessage];
+      });
     };
 
-    // Start polling every 3 seconds
-    pollingIntervalRef.current = setInterval(pollForNewMessages, 3000);
+    const handleConversationCleared = ({ conversationId: clearedConversationId }) => {
+      if (!clearedConversationId || clearedConversationId !== conversationId) {
+        return;
+      }
 
-    // Cleanup on unmount
+      setMessages([
+        {
+          id: "system-cleared",
+          senderId: "system",
+          text: "Chat history has been cleared.",
+          timestamp: new Date(),
+          read: true,
+          isSystemMessage: true,
+        },
+      ]);
+    };
+
+    socket.on("connect", handleConnect);
+    socket.on("disconnect", handleDisconnect);
+    socket.on("message:new", handleIncomingMessage);
+    socket.on("conversation:cleared", handleConversationCleared);
+
+    if (socket.connected) {
+      setIsSocketConnected(true);
+    }
+
     return () => {
-      if (pollingIntervalRef.current) {
-        clearInterval(pollingIntervalRef.current);
-      }
+      socket.off("connect", handleConnect);
+      socket.off("disconnect", handleDisconnect);
+      socket.off("message:new", handleIncomingMessage);
+      socket.off("conversation:cleared", handleConversationCleared);
     };
-  }, [
-    currentUser,
-    activeTutor,
-    conversationId,
-    loading,
-    messages.length,
-    isPolling,
-  ]);
+  }, [currentUser, conversationId]);
+
+  useEffect(() => {
+    const socket = socketRef.current;
+    if (!socket || !conversationId) {
+      return;
+    }
+
+    socket.emit("join:conversation", conversationId);
+    return () => {
+      socket.emit("leave:conversation", conversationId);
+    };
+  }, [conversationId]);
 
   // Handle sending a message
   const sendMessage = async (e) => {
@@ -247,20 +271,24 @@ const ChatInterface = ({
 
       if (response.data.success) {
         // Replace the temp message with the confirmed one from server
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg.id === tempMessage.id
+        setMessages((prev) => {
+          const confirmedId = response.data.data._id;
+          const deduped = prev.filter(
+            (msg) => msg.id !== confirmedId || msg.id === tempMessage.id
+          );
 
+          return deduped.map((msg) =>
+            msg.id === tempMessage.id
               ? {
-                  id: response.data.data._id,
+                  id: confirmedId,
                   senderId: response.data.data.sender,
                   text: response.data.data.text,
                   timestamp: new Date(response.data.data.createdAt),
                   read: false,
                 }
               : msg
-          )
-        );
+          );
+        });
 
 
         // If this is the first message, set the conversation ID
@@ -406,13 +434,13 @@ const ChatInterface = ({
                 <div className="flex items-center mt-1">
                   <span
                     className={`inline-block w-2 h-2 rounded-full mr-1.5 ${
-                      !isPolling
+                      isSocketConnected
                         ? "bg-green-400 animate-pulse shadow-lg shadow-green-400/50"
                         : "bg-yellow-400"
                     }`}
                   ></span>
                   <span className="text-xs text-white font-medium">
-                    {!isPolling ? "Live" : "Syncing..."}
+                    {isSocketConnected ? "Live" : "Reconnecting..."}
                   </span>
                 </div>
 
