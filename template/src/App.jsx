@@ -1,4 +1,5 @@
 import { Routes, Route } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Navbar from "./components/Navbar";
@@ -28,6 +29,7 @@ function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Signup />} />
+        <Route path="/signup" element={<Navigate to="/register" replace />} />
         <Route path="/about" element={<AboutUs />} />
         <Route path="/tutors" element={<Tutor />} />
         <Route path="/ai-assistant" element={<AIAssistant />} />

@@ -45,7 +45,7 @@ const Home = () => {
               Find a Tutor
             </Link>
             <Link
-              to="/signup"
+              to="/register"
               className="bg-yellow-400 hover:bg-yellow-300 text-indigo-900 font-bold py-4 px-8 border-2 border-yellow-400 hover:border-yellow-300 rounded-xl transition-all duration-300 hover:scale-105 shadow-xl"
             >
               Become a Tutor
@@ -378,7 +378,7 @@ const Home = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                to="/signup"
+                to="/register"
                 className="group bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-indigo-900 font-bold py-4 px-10 rounded-xl transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105 flex items-center justify-center"
               >
                 <span>Get Started Free</span>
