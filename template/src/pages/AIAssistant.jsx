@@ -29,7 +29,15 @@ const AIAssistant = () => {
   const [messages, setMessages] = useState(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      return stored ? JSON.parse(stored) : [initialWelcomeMessage];
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        // Convert timestamp strings back to Date objects
+        return parsed.map((msg) => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp),
+        }));
+      }
+      return [initialWelcomeMessage];
     } catch {
       return [initialWelcomeMessage];
     }
